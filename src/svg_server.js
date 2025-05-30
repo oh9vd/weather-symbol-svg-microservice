@@ -1,5 +1,8 @@
+
 const express = require('express');
 const fs = require('fs').promises;
+const optimizer = require('svgo');
+
 const path = require('path');
 
 const app = express();
@@ -53,7 +56,7 @@ function extractSvgContentAndDefs(svgString) {
 }
 
 // === Tuulen nuolen endpoint (sama kuin aiemmin, jos et muuta sitä tiedostopohjaiseksi) ===
-const BASE_WIND_ARROW_SVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="white" class="size-6"> <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" /></svg>`;
+const BASE_WIND_ARROW_SVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="size-6"> <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" /></svg>`;
 const svgCenterX = 12;
 const svgCenterY = 12;
 
@@ -77,6 +80,10 @@ app.get('/wind_direction_svgs', (req, res) => {
   }
   res.setHeader('Content-Type', 'image/svg+xml');
   res.send(finalSvgContent);
+});
+
+app.get('/', (req, res) => {
+  res.send('Minimal Test');
 });
 
 // === Yleinen symbolien endpoint (korvaa aiemman '/symbol/:symbol_name') ===
@@ -119,7 +126,7 @@ function parseVaisalaWeatherCode(weatherCode) {
 
     // Lisää pääelementti (aurinko/kuu)
     if (dayNight === 'd' && cloudiness <= 2) { // Kirkas tai melkein/puolipilvinen päivä
-        components.push({ name: 'sun-base', x: 0, y: 0, scale: 1, animation: { type: 'rotate', dur: '10s', from: '0 32 32', to: '360 32 32' } });
+        components.push({ name: 'sun-base', x: 0, y: 0, scale: 1 });
         // Jos pilvisyyttä, sijoita aurinko/kuu hieman sivuun
         if (cloudiness === 1) { // Melkein selkeä
              components[0].x = -15; // Siirrä aurinkoa vasemmalle
@@ -148,8 +155,7 @@ function parseVaisalaWeatherCode(weatherCode) {
     let cloudX = 0;
     let cloudY = 0;
     let cloudScale = 1;
-    let cloudAnimation = { type: 'translate', dur: '4s', values: '-5 0; 5 0; -5 0' };
-
+ 
     switch (cloudiness) {
         case 0: // Selkeä - ei pilviä (paitsi jos on sadetta/ukkonen, jolloin lisätään pilvi myöhemmin)
             break;
@@ -189,7 +195,6 @@ function parseVaisalaWeatherCode(weatherCode) {
             cloudX = 0;
             cloudY = 0;
             cloudScale = 1.2; // Sumu voi olla laaja
-            cloudAnimation = null; // Sumu ei välttämättä liiku edestakaisin
             break;
     }
 
@@ -203,7 +208,7 @@ function parseVaisalaWeatherCode(weatherCode) {
             cloudScale = 1;
         }
         if (cloudElement) {
-             components.push({ name: cloudElement, x: cloudX, y: cloudY, scale: cloudScale, animation: cloudAnimation });
+             components.push({ name: cloudElement, x: cloudX, y: cloudY, scale: cloudScale});
         }
     }
 
@@ -285,19 +290,9 @@ app.get('/vaisala_symbol/:weather_code', async (req, res) => {
                     transform += ` rotate(${comp.rotation.angle} ${comp.rotation.cx} ${comp.rotation.cy})`;
                 }
                 
-                let animationTag = '';
-                if (comp.animation) {
-                    if (comp.animation.type === 'rotate') {
-                        animationTag = `<animateTransform attributeName="transform" type="rotate" from="${comp.animation.from}" to="${comp.animation.to}" dur="${comp.animation.dur}" repeatCount="indefinite" additive="sum" />`;
-                    } else if (comp.animation.type === 'translate') {
-                        animationTag = `<animateTransform attributeName="transform" type="translate" values="${comp.animation.values}" keyTimes="${comp.animation.keyTimes || '0;0.5;1'}" dur="${comp.animation.dur}" repeatCount="indefinite" additive="sum" />`;
-                    }
-                }
-                
                 combinedSvgContent += `
                     <g transform="${transform}">
                         ${parsed.mainContent}
-                        ${animationTag}
                     </g>
                 `;
             }
@@ -315,8 +310,10 @@ app.get('/vaisala_symbol/:weather_code', async (req, res) => {
             </svg>
         `;
 
+        const optSvg = optimizer.optimize(finalSvg, null);
+
         res.setHeader('Content-Type', 'image/svg+xml');
-        res.send(finalSvg);
+        res.send(optSvg.data);
 
     } catch (err) {
         console.error('Virhe Vaisala-symbolin luomisessa:', err);

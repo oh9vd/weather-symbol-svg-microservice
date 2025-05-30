@@ -3,14 +3,24 @@
   "version": "1.0.0",
   "main": "src/svg_server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --inspect"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "author": "oh9vd",
+  "license": "MIT",
   "dependencies": {
-    "express": "^5.1.0",
-    "pg": "^8.16.0"
-  }
+    "cors": "~2.8.5",
+    "express": "~5.1.0",
+    "svgo": "^3.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/username/repository.git"
+  },
+  "bugs": {
+    "url": "https://github.com/username/repository/issues"
+  },
+  "homepage": "https://github.com/username/repository#readme",
+  "description": ""
 }
