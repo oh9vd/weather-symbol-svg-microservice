@@ -1,0 +1,16 @@
+{
+  "name": "node_svg_server",
+  "version": "1.0.0",
+  "main": "src/svg_server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^5.1.0",
+    "pg": "^8.16.0"
+  }
+}

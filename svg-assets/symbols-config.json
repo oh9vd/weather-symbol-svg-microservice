@@ -1,0 +1,43 @@
+{
+  "elements": {
+    "sun-base": {
+      "path": "elements/sun-base.svg",
+      "description": "Aurinkosymbolin perusosa ilman animaatiota"
+    },
+    "moon-crescent": {
+      "path": "elements/moon-crescent.svg",
+      "description": "Sirppikuu"
+    },
+    "cloud-base": {
+      "path": "elements/cloud-base.svg",
+      "description": "Yksinkertainen pilvi"
+    },
+    "cloud-broken": {
+      "path": "elements/cloud-broken.svg",
+      "description": "Pilvi murrettuun/hajanaiseen pilvisyyteen"
+    },
+    "cloud-overcast": {
+      "path": "elements/cloud-overcast.svg",
+      "description": "Pilvi paksulle/pilviselle säälle"
+    },
+    "rain-drops": {
+      "path": "elements/rain-drops.svg",
+      "description": "Sadekuvat (yksi, kaksi tai kolme tippaa)"
+    },
+    "sleet-symbol": {
+      "path": "elements/sleet-symbol.svg",
+      "description": "Räntäkuvat"
+    },
+    "snow-flakes": {
+      "path": "elements/snow-flakes.svg",
+      "description": "Lumihiutalekuvat"
+    },
+    "thunderbolt": {
+      "path": "elements/thunderbolt.svg",
+      "description": "Salaman symboli"
+    },
+    "fog-symbol": {
+        "path": "elements/fog-symbol.svg",
+        "description": "Sumusymboli"
+    }
+  }
