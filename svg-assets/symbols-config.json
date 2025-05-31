@@ -2,43 +2,43 @@
   "elements": {
     "sun-base": {
       "path": "elements/sun-base.svg",
-      "description": "Aurinkosymbolin perusosa ilman animaatiota"
+      "description": "The basic part of the sun symbol without animation"
     },
     "moon-crescent": {
       "path": "elements/moon-crescent.svg",
-      "description": "Sirppikuu"
+      "description": "Crescent moon"
     },
     "cloud-base": {
       "path": "elements/cloud-base.svg",
-      "description": "Yksinkertainen pilvi"
+      "description": "Simple cloud"
     },
     "cloud-broken": {
       "path": "elements/cloud-broken.svg",
-      "description": "Pilvi murrettuun/hajanaiseen pilvisyyteen"
+      "description": "Cloud for broken/scattered clouds"
     },
     "cloud-overcast": {
       "path": "elements/cloud-overcast.svg",
-      "description": "Pilvi paksulle/pilviselle säälle"
+      "description": "Cloud for overcast/cloudy weather"
     },
     "rain-drops": {
       "path": "elements/rain-drops.svg",
-      "description": "Sadekuvat (yksi, kaksi tai kolme tippaa)"
+      "description": "Rain images (one, two or three drops)"
     },
     "sleet-symbol": {
       "path": "elements/sleet-symbol.svg",
-      "description": "Räntäkuvat"
+      "description": "Sleet images"
     },
     "snow-flakes": {
       "path": "elements/snow-flakes.svg",
-      "description": "Lumihiutalekuvat"
+      "description": "Snowflake images"
     },
     "thunderbolt": {
       "path": "elements/thunderbolt.svg",
-      "description": "Salaman symboli"
+      "description": "Lightning symbol"
     },
     "fog-symbol": {
-        "path": "elements/fog-symbol.svg",
-        "description": "Sumusymboli"
+      "path": "elements/fog-symbol.svg",
+      "description": "Fog symbol"
     }
   }
 }
