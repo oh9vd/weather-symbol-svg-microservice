@@ -8,6 +8,7 @@ const port = 4000;
 
 // Define directories for SVG assets and configuration
 const SVG_ASSETS_DIR = path.join(__dirname, '..', 'svg-assets');
+const SVG_ELEMENTS_DIR = path.join(SVG_ASSETS_DIR,'elements');
 const SYMBOLS_CONFIG_PATH = path.join(SVG_ASSETS_DIR, 'symbols-config.json');
 
 let symbolsConfig = {};
@@ -57,28 +58,45 @@ function extractSvgContentAndDefs(svgString) {
 }
 
 // Endpoint to generate rotated wind direction SVGs
-app.get('/wind_direction_svgs', (req, res) => {
-    const directionDegrees = parseInt(req.query.angle, 10);
+app.get('/wind_direction_svgs/:angle', async (req, res) => {
+    const directionDegrees = parseInt(req.params.angle, 10);
     if (isNaN(directionDegrees) || directionDegrees < 0 || directionDegrees >= 360) {
         return res.status(400).send('Invalid or missing "angle" parameter (0-359 degrees).');
     }
-    
-    const BASE_WIND_ARROW_SVG = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="red" class="size-6"> <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5 12 21m0 0-7.5-7.5M12 21V3" /></svg>`;
-    const transformAttr = `rotate(${directionDegrees} 12 12)`;
-    const svgRegex = /<svg([^>]*)>(.*?)<\/svg>/s;
-    const match = BASE_WIND_ARROW_SVG.match(svgRegex);
 
-    if (match && match.length === 3) {
-        const svgAttributes = match[1];
-        const innerSvgContent = match[2];
-        const finalSvgContent = `<svg${svgAttributes}><g transform="${transformAttr}">${innerSvgContent}</g></svg>`;
-        
-        res.setHeader('Content-Type', 'image/svg+xml');
-        res.send(finalSvgContent);
-    } else {
-        console.error('Error parsing BASE_WIND_ARROW_SVG string.');
-        res.status(500).send('Server error creating SVG image.');
+    const symbolName = 'wind-arrow';
+
+    try {
+        const svgPath = path.join(SVG_ELEMENTS_DIR, `${symbolName}.svg`);
+        const baseWindArrowSvg  = await fs.readFile(svgPath, 'utf8');
+
+        const transformAttr = `rotate(${directionDegrees} 12 12)`;
+        const svgRegex = /<svg([^>]*)>(.*?)<\/svg>/s;
+        const match = baseWindArrowSvg.match(svgRegex);
+
+        if (match && match.length === 3) {
+            const svgAttributes = match[1];
+            const innerSvgContent = match[2];
+            const finalSvg = 
+                `<svg${svgAttributes}>
+                    <g transform="${transformAttr}">
+                        ${innerSvgContent}
+                    </g>
+                </svg>`;
+            const optimizedSvg = optimize(finalSvg, { multipass: true });                
+            
+            res.setHeader('Content-Type', 'image/svg+xml');
+            res.send(optimizedSvg.data);
+        } else {
+            console.error('Error parsing BASE_WIND_ARROW_SVG string.');
+            res.status(500).send('Server error creating SVG image.');
+        }
+    } catch (err) {
+        console.error(`Error loading symbol '${symbolName}':`, err);
+        res.status(500).send('Server error loading SVG symbol.');
     }
+    
+ 
 });
 
 // Basic endpoint for health check
