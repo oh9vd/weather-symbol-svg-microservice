@@ -8,22 +8,8 @@ const port = 4000;
 
 // Define directories for SVG assets and configuration
 const SVG_ASSETS_DIR = path.join(__dirname, '..', 'svg-assets');
-const SVG_ELEMENTS_DIR = path.join(SVG_ASSETS_DIR,'elements');
+const SVG_ELEMENTS_DIR = path.join(SVG_ASSETS_DIR, 'elements');
 const SYMBOLS_CONFIG_PATH = path.join(SVG_ASSETS_DIR, 'symbols-config.json');
-
-let symbolsConfig = {};
-
-// Load symbol configuration from a JSON file
-async function loadSymbolsConfig() {
-    try {
-        const data = await fs.readFile(SYMBOLS_CONFIG_PATH, 'utf8');
-        symbolsConfig = JSON.parse(data);
-        console.log('Symbol configuration loaded successfully.');
-    } catch (err) {
-        console.error('ERROR: Failed to load symbol configuration:', err);
-        process.exit(1);
-    }
-}
 
 // Extract content and definitions from an SVG string
 function extractSvgContentAndDefs(svgString) {
@@ -67,7 +53,7 @@ app.get('/wind_direction_svgs/:angle', async (req, res) => {
     const symbolName = 'wind-arrow';
 
     try {
-        const svgPath = path.join(SVG_ELEMENTS_DIR, `${symbolName}.svg`);
+        const svgPath = path.join(SVG_ASSETS_DIR, `${symbolName}.svg`);
         const baseWindArrowSvg  = await fs.readFile(svgPath, 'utf8');
 
         const transformAttr = `rotate(${directionDegrees} 12 12)`;
@@ -95,133 +81,42 @@ app.get('/wind_direction_svgs/:angle', async (req, res) => {
         console.error(`Error loading symbol '${symbolName}':`, err);
         res.status(500).send('Server error loading SVG symbol.');
     }
-    
- 
-});
-
-// Basic endpoint for health check
-app.get('/', (req, res) => {
-    res.send('Minimal Test');
-});
-
-// Endpoint to retrieve specific SVG symbols by name
-app.get('/symbol/:symbol_name', async (req, res) => {
-    const symbolName = req.params.symbol_name;
-    const symbolConfig = symbolsConfig.elements[symbolName];
-
-    if (!symbolConfig) {
-        return res.status(404).send('SVG symbol not found with the given name.');
-    }
-
-    try {
-        const svgPath = path.join(SVG_ASSETS_DIR, symbolConfig.path);
-        const svgContent = await fs.readFile(svgPath, 'utf8');
-
-        res.setHeader('Content-Type', 'image/svg+xml');
-        res.send(svgContent);
-    } catch (err) {
-        console.error(`Error loading symbol '${symbolName}':`, err);
-        res.status(500).send('Server error loading SVG symbol.');
-    }
 });
 
 // Parse Vaisala weather code to determine SVG components
 function parseVaisalaWeatherCode(weatherCode) {
     if (typeof weatherCode !== 'string' || weatherCode.length !== 4) {
-        return []; // Return empty array if code is malformed
+        return []; // Return empty in error 
     }
 
-    const dayNight = weatherCode[0]; // 'd' for daytime, 'n' for nighttime
+    const dayNight = weatherCode[0];
     const cloudiness = parseInt(weatherCode[1], 10);
     const precipitationRate = parseInt(weatherCode[2], 10);
     const precipitationType = parseInt(weatherCode[3], 10);
 
     const components = [];
 
-    // Add main element (sun/moon) based on day/night and cloudiness
-    const mainElement = dayNight === 'd'
-        ? (cloudiness <= 2 ? 'sun-base' : null)
-        : (cloudiness <= 2 ? 'moon-crescent' : null);
-
-    if (mainElement) {
-        components.push({ name: mainElement, x: 0, y: 0, scale: 1 });
-
-        // Adjust position and scale for partly cloudy conditions
-        if (cloudiness === 1 || cloudiness === 2) {
-            components[0].x = -15;
-            components[0].y = -15;
-            components[0].scale = 0.7;
-        }
+    // Add sun or moon based on day or night
+    if (cloudiness !== 4) {
+        const celestialBody = dayNight === 'd' ? 'sun' : 'moon';
+        components.push({ name: celestialBody, x: 0, y: 0, scale: 1 });
     }
 
-    // Determine cloud element based on cloudiness level
-    let cloudElement = null;
-    let cloudX = 0;
-    let cloudY = 0;
-    let cloudScale = 1;
-
-    switch (cloudiness) {
-        case 0:
-            break;
-        case 1:
-            cloudElement = 'cloud-base';
-            cloudX = 10;
-            cloudY = 10;
-            cloudScale = 0.9;
-            break;
-        case 2:
-            cloudElement = 'cloud-base';
-            break;
-        case 3:
-            cloudElement = 'cloud-broken';
-            break;
-        case 4:
-            cloudElement = 'cloud-overcast';
-            cloudScale = 1.1;
-            break;
-        case 5:
-            cloudElement = 'cloud-base';
-            break;
-        case 6:
-            cloudElement = 'fog-symbol';
-            cloudScale = 1.2;
-            break;
+    // Add cloudiness
+    if (cloudiness > 0) {
+        components.push({ name: `cloud-${cloudiness}`, x: 0, y: 0, scale: 1 });
     }
 
-    if (cloudElement || precipitationRate > 0) {
-        if (!cloudElement && precipitationRate > 0) {
-            cloudElement = 'cloud-overcast';
-        }
-        if (cloudElement) {
-             components.push({ name: cloudElement, x: cloudX, y: cloudY, scale: cloudScale });
-        }
-    }
-
-    // Add precipitation element based on rate and type
+     // Add precipitation: rain/sleet/snow/thunder
     if (precipitationRate > 0) {
-        let precipitationElement = '';
-        let precipYOffset = 30;
+        const precipNamePrefix = precipitationRate < 4 ? precipitationRate : precipitationRate - 2;
+        const precipNameSuffix = precipitationRate < 4 ? precipitationType : '0';
+        const precipName = `precip-${precipNamePrefix}${precipNameSuffix}`;
 
-        switch (precipitationType) {
-            case 0: precipitationElement = 'rain-drops'; break;
-            case 1: precipitationElement = 'sleet-symbol'; break;
-            case 2: precipitationElement = 'snow-flakes'; break;
-        }
+        components.push({ name: precipName, x: 0, y: 30, scale: 1 });
 
-        if (precipitationElement) {
-            const precipitationConfig = [
-                { x: 10, y: precipYOffset, scale: 0.7 },
-                { x: 0, y: precipYOffset, scale: 1 },
-                { x: 0, y: precipYOffset, scale: 1.2 },
-                { x: 0, y: 15, scale: 1.2 }
-            ][precipitationRate - 1] || {};
-
-            components.push({ name: precipitationElement, ...precipitationConfig });
-
-            if (precipitationRate === 4) { // Thunderstorm
-                components.push({ name: 'thunderbolt', x: 0, y: 15, scale: 1.2 });
-                components.push({ name: precipitationElement, x: 0, y: precipYOffset + 10, scale: 1.1 });
-            }
+        if (precipitationRate >= 4) {
+            components.push({ name: 'thunderbolt', x: 0, y: 15, scale: 1.2 });
         }
     }
 
@@ -243,11 +138,7 @@ app.get('/vaisala_symbol/:weather_code', async (req, res) => {
 
     try {
         const elementPromises = elementsToCombine.map(comp => {
-            const elementConfig = symbolsConfig.elements[comp.name];
-            if (!elementConfig) {
-                throw new Error(`SVG component '${comp.name}' not found in symbols-config.json.`);
-            }
-            const svgPath = path.join(SVG_ASSETS_DIR, elementConfig.path);
+            const svgPath = path.join(SVG_ELEMENTS_DIR, `${comp.name}.svg`);
             return fs.readFile(svgPath, 'utf8');
         });
 
@@ -301,9 +192,6 @@ app.get('/vaisala_symbol/:weather_code', async (req, res) => {
     }
 });
 
-// Load symbol configuration before starting the server
-loadSymbolsConfig().then(() => {
-    app.listen(port, () => {
-        console.log(`SVG server running at http://localhost:${port}`);
-    });
+app.listen(port, () => {
+    console.log(`SVG server running at http://localhost:${port}`);
 });
