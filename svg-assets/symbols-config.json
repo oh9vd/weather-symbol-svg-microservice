@@ -39,10 +39,6 @@
     "fog-symbol": {
         "path": "elements/fog-symbol.svg",
         "description": "Sumusymboli"
-    },
-    "wind-arrow": {
-      "path": "elements/wind-array.svg",
-      "desciption": "Tuulensuunta nuoli"
     }
   }
 }
