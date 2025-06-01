@@ -1,24 +1,82 @@
+
 <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-<defs>
-    <style type="text/css">
-        .percip-fill {
-            fill: blue;
-        }
+    <defs>
+        <style type="text/css">
+            .flake-fill {
+                fill: #ffffff; /* Lumihiutaleet ovat yleensä valkoisia */
+                /*stroke: "0c0c0c"; *//* Hieman tummempi reuna */
+                /*stroke-width: 0.1;*/ /* Hieman ohuempi viiva */
+                /*stroke-linecap: round;*/
+            }
+            .flake-back {
+                fill: lightblue;
+                stroke-width: 2;
+            }
+        </style>
 
-        .percip-stroke {
-            stroke: currentColor;
-            stroke-width: 1.5;
-            stroke-linejoin: round;
-        }
+        <rect id="flake-edge" class="flake-fill" x="-32" y="-6" width="64" height="12" />
 
-        .percip-text {
-            font: italic 13px sans-serif;
-        }
-    </style>
-    
-</defs>
-<g >
-    <rect class="percip-fill percip-stroke" x="10" y="10" width="40" height="20" rx="5" />
-    <text x="20" y="25" class="percip-text">12</text> 
-</g>
+        <g id="single-flake">
+            <circle r="34" class="flake-back"/>
+            <use href="#flake-edge" transform="rotate(0)" />
+            <use href="#flake-edge" transform="rotate(60)" />   
+            <use href="#flake-edge" transform="rotate(120)" />         
+        </g>
+
+        <g id="falling-flake-template">
+            <use href="#single-flake" transform="scale(0.05)" /> 
+
+            <animateTransform
+                attributeName="transform"
+                type="translate"
+                values="0 0; 5 15; -3 30; 7 45; 0 64"
+                keyTimes="0; 0.25; 0.5; 0.75; 1"
+                dur="8s"
+                repeatCount="indefinite"
+                additive="sum" />
+            
+            <animateTransform
+                attributeName="transform"
+                type="rotate"
+                values="0; 360"
+                keyTimes="0; 1"
+                dur="5s"
+                repeatCount="indefinite"
+                additive="sum" />
+
+            <animate
+                attributeName="opacity"
+                values="0; 1; 1; 0"
+                keyTimes="0; 0.05; 0.95; 1"
+                dur="8s"
+                repeatCount="indefinite" />
+        </g>
+
+    </defs>
+
+    <g transform="translate(32 20)"> 
+        <use href="#falling-flake-template" x="-20">
+            <animate attributeName="x" values="-20; -20" dur="8s" repeatCount="indefinite" /> 
+            <animate attributeName="y" values="-10; -10" dur="8s" repeatCount="indefinite" /> 
+        </use>
+<!--
+        <use href="#falling-flake-template" x="10" y="0">
+            <animate attributeName="x" values="10;10" dur="8s" repeatCount="indefinite" begin="2s" />
+            <animate attributeName="y" values="0;0" dur="8s" repeatCount="indefinite" begin="2s" />
+        </use>
+        
+       <use href="#falling-flake-template" x="-5" y="-30">
+            <animate attributeName="x" values="-5;-5" dur="8s" repeatCount="indefinite" begin="4s" />
+            <animate attributeName="y" values="-30;-30" dur="8s" repeatCount="indefinite" begin="4s" />
+            <animateTransform
+                attributeName="transform"
+                type="scale"
+                values="0.06; 0.06"
+                keyTimes="0; 1"
+                dur="8s"
+                repeatCount="indefinite"
+                additive="sum" />
+        </use>
+-->
+    </g>
 </svg>

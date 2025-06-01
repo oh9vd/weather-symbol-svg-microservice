@@ -97,13 +97,21 @@ function parseVaisalaWeatherCode(weatherCode) {
     const components = [];
 
     // Add sun or moon based on day or night
-    if (cloudiness !== 4) {
+    if (cloudiness !== 4 && cloudiness !== 6) {
         const celestialBody = dayNight === 'd' ? 'sun' : 'moon';
         components.push({ name: celestialBody, x: 0, y: 0, scale: 1 });
     }
 
     // Add cloudiness
-    if (cloudiness > 0) {
+    if (cloudiness === 1) {
+        components.push({ name: "cloud-1", x: 20, y: 0, scale: 0.7 });
+    } else if (cloudiness === 2) {
+        components.push({ name: "cloud-2", x: 5, y: 5, scale: 1 });
+    } else if (cloudiness === 3) {
+        components.push({ name: "cloud-3", x: 0, y: 0, scale: 1});  
+    } else if (cloudiness === 4) {
+        components.push({ name: "cloud-3", x: 0, y: 0, scale: 1.2});              
+    } else if (cloudiness > 0) {
         components.push({ name: `cloud-${cloudiness}`, x: 0, y: 0, scale: 1 });
     }
 
@@ -113,7 +121,7 @@ function parseVaisalaWeatherCode(weatherCode) {
         const precipNameSuffix = precipitationRate < 4 ? precipitationType : '0';
         const precipName = `precip-${precipNamePrefix}${precipNameSuffix}`;
 
-        components.push({ name: precipName, x: 0, y: 30, scale: 1 });
+        components.push({ name: precipName, x: -0, y: 20, scale: 1 });
 
         if (precipitationRate >= 4) {
             components.push({ name: 'thunderbolt', x: 0, y: 15, scale: 1.2 });
