@@ -1,0 +1,44 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+<defs>
+    <style type="text/css">
+        .sun-fill {
+            fill: #ffa500;
+        }
+
+        .sun-stroke {
+            stroke: #ffa500;
+        }
+
+        .ray-stroke {
+            stroke: #ffa500;
+            stroke-width: 2;
+            stroke-linecap: round;
+        }
+
+        .sun-core-stroke {
+            stroke-width: 2;
+        }
+    </style>
+
+    <line id="single-sun-ray" x1="0" y1="0" x2="0" y2="-3" class="ray-stroke" />
+
+    <g id="sun-symbol" class="sun-fill sun-stroke">
+        <circle r="5" cx="0" cy="0" class="sun-core-stroke" />
+
+        <g class="sun-rays">
+            <use href="#single-sun-ray" transform="rotate(0) translate(0,-9)" />
+            <use href="#single-sun-ray" transform="rotate(45) translate(0,-9)" />
+            <use href="#single-sun-ray" transform="rotate(90) translate(0,-9)" />
+            <use href="#single-sun-ray" transform="rotate(135) translate(0,-9)" />
+            <use href="#single-sun-ray" transform="rotate(180) translate(0,-9)" />
+            <use href="#single-sun-ray" transform="rotate(225) translate(0,-9)" />
+            <use href="#single-sun-ray" transform="rotate(270) translate(0,-9)" />
+            <use href="#single-sun-ray" transform="rotate(315) translate(0,-9)" />
+
+            <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="45 0 0" dur="2.5s"
+                repeatCount="indefinite" />
+        </g>
+    </g>
+</defs>
+<use href="#sun-symbol" transform="translate(13,13)"/>
+</svg>
