@@ -154,7 +154,7 @@ A simple endpoint to check if the service is running.
     ```
     http://localhost:4000/
     ```
-* **Success Response:** Returns "SVG Server is running!".
+* **Success Response:** Returns something like `2025-06-01T11:32:43.513Z: SVG Server is running!`, where the date and time is received from current time in server.
 
 ## Project Structure
 ```
