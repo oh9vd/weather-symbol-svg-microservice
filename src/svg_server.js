@@ -85,50 +85,67 @@ app.get('/wind_direction_svgs/:angle', async (req, res) => {
 
 // Parse Vaisala weather code to determine SVG components
 function parseVaisalaWeatherCode(weatherCode) {
-    if (typeof weatherCode !== 'string' || weatherCode.length !== 4) {
-        return []; // Return empty in error 
+    if (!isValidWeatherCode(weatherCode)) {
+        return []; // Return empty array if input is invalid
     }
 
-    const dayNight = weatherCode[0];
-    const cloudiness = parseInt(weatherCode[1], 10);
-    const precipitationRate = parseInt(weatherCode[2], 10);
-    const precipitationType = parseInt(weatherCode[3], 10);
+    const [dayNight, cloudinessChar, precipitationRateChar, precipitationTypeChar] = weatherCode;
+    const cloudiness = parseInt(cloudinessChar, 10);
+    const precipitationRate = parseInt(precipitationRateChar, 10);
+    const precipitationType = parseInt(precipitationTypeChar, 10);
 
     const components = [];
 
-    // Add sun or moon based on day or night
-    if (cloudiness !== 4 && cloudiness !== 6) {
-        const celestialBody = dayNight === 'd' ? 'sun' : 'moon';
+    addCelestialBody(components, dayNight, cloudiness);
+    addCloudiness(components, cloudiness);
+    addPrecipitation(components, precipitationRate, precipitationType);
+
+    return components;
+}
+
+// Helper function to validate the weather code
+function isValidWeatherCode(weatherCode) {
+    const regex = /^[nd][0-6][0-4][0-2]$/;
+    return typeof weatherCode === 'string' && regex.test(weatherCode);
+}
+
+// Helper function to add celestial body (sun/moon)
+function addCelestialBody(components, dayNight, cloudiness) {
+    if (![4, 6].includes(cloudiness)) {
+        const celestialBody = (dayNight === 'd') ? 'sun' : 'moon';
         components.push({ name: celestialBody, x: 0, y: 0, scale: 1 });
     }
+}
 
-    // Add cloudiness
-    if (cloudiness === 1) {
-        components.push({ name: "cloud-1", x: 20, y: 0, scale: 0.7 });
-    } else if (cloudiness === 2) {
-        components.push({ name: "cloud-2", x: 5, y: 5, scale: 1 });
-    } else if (cloudiness === 3) {
-        components.push({ name: "cloud-3", x: 0, y: 0, scale: 1});  
-    } else if (cloudiness === 4) {
-        components.push({ name: "cloud-3", x: 0, y: 0, scale: 1.2});              
-    } else if (cloudiness > 0) {
-        components.push({ name: `cloud-${cloudiness}`, x: 0, y: 0, scale: 1 });
+// Helper function to add cloudiness component
+function addCloudiness(components, cloudiness) {
+    const cloudConfigurations = {
+        1: { name: "cloud-1", x: 20, y: 0, scale: 0.7 },
+        2: { name: "cloud-2", x: 5, y: 5, scale: 1 },
+        3: { name: "cloud-3", x: 0, y: 0, scale: 1 },
+        4: { name: "cloud-3", x: 0, y: 0, scale: 1.2 },
+        5: { name: "cloud-5", x: 0, y: 0, scale: 1 },
+        6: { name: "cloud-6", x: 0, y: 0, scale: 1 }
+    };
+
+    if (cloudConfigurations[cloudiness]) {
+        components.push(cloudConfigurations[cloudiness]);
     }
+}
 
-     // Add precipitation: rain/sleet/snow/thunder
-    if (precipitationRate > 0) {
-        const precipNamePrefix = precipitationRate < 4 ? precipitationRate : precipitationRate - 2;
-        const precipNameSuffix = precipitationRate < 4 ? precipitationType : '0';
-        const precipName = `precip-${precipNamePrefix}${precipNameSuffix}`;
+// Helper function to add precipitation component
+function addPrecipitation(components, rate, type) {
+    if (rate > 0) {
+        const precipPrefix = rate < 4 ? rate : rate - 2;
+        const precipSuffix = rate < 4 ? type : '0';
+        const precipName = `precip-${precipPrefix}${precipSuffix}`;
 
-        components.push({ name: precipName, x: -0, y: 20, scale: 1 });
+        components.push({ name: precipName, x: 0, y: 20, scale: 1 });
 
-        if (precipitationRate >= 4) {
+        if (rate >= 4) {
             components.push({ name: 'thunderbolt', x: 0, y: 15, scale: 1.2 });
         }
     }
-
-    return components;
 }
 
 // Endpoint to combine symbols for Vaisala weather codes
