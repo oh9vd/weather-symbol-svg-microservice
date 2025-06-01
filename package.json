@@ -4,7 +4,7 @@
   "description": "A Node.js microservice for dynamic SVG weather symbols.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --inspect",
+    "start": "nodemon",
     "build": "node build.js"
   },
   "keywords": [],
