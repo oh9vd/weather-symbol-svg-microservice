@@ -1,4 +1,15 @@
 {
   "watch": ["src"],
-  "ext": "js,json"
+  "ext": "js,json",
+  "execMap": {
+    "js": "node --inspect"
+  },
+  "exec": "node --inspect src/server.js",
+  "ignore": [
+    "node_modules",
+    "dist",
+    "assets",
+    "*.log",
+    ".git"
+  ]
 }

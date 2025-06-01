@@ -1,10 +1,11 @@
 {
-  "name": "node_svg_server",
+  "name": "weather-symbol-svg-microservice",
   "version": "1.0.0",
-  "main": "src/svg_server.js",
+  "description": "A Node.js microservice for dynamic SVG weather symbols.",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --inspect"
+    "start": "nodemon --inspect",
+    "build": "node build.js"
   },
   "keywords": [],
   "author": "oh9vd",
@@ -16,11 +17,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/username/repository.git"
+    "url": "git+https://github.com/oh9vd/weather-symbol-svg-microservice.git"
   },
   "bugs": {
-    "url": "https://github.com/username/repository/issues"
+    "url": "https://github.com/username/weather-symbol-svg-microservice/issues"
   },
-  "homepage": "https://github.com/username/repository#readme",
-  "description": ""
+  "homepage": "https://github.com/username/weather-symbol-svg-microservice#readme",
+  "devDependencies": {
+    "archiver": "^7.0.1",
+    "esbuild": "^0.25.5",
+    "fs-extra": "^11.2.0",
+    "nodemon": "^3.1.4"
+  }
 }
