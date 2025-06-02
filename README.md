@@ -31,7 +31,7 @@ This project provides a lightweight Node.js microservice that dynamically genera
     # or yarn install
     ```
 3.  **Place SVG assets:**
-    Create an `assets/elements` directory at the root of your project (sibling to `src/`) and place your individual SVG symbol files (e.g., `sun.svg`, `cloud-1.svg`, `precip-10.svg`, `thunderbolt.svg`, etc.) within it. Also, place `wind-arrow.svg` directly in the `assets/` directory.
+    Create an `assets/elements` directory at the root of your project (sibling to `src/`) and place your individual SVG symbol files (e.g., `sun.svg`, `cloud-1.svg`, `rain.svg`, `thunderbolt.svg`, etc.) within it. Also, place `wind-arrow.svg` directly in the `assets/` directory.
 
     Your `assets` directory structure should look like this:
     ```
@@ -103,6 +103,16 @@ To deploy the service:
     ```bash
     node bundle.js
     ```
+
+    Note: The listening port can be set by environment variable `PORT`. If not set the service listen to port `4000`.
+
+    For example:
+    ```bash
+    PORT=8080 node bundle.js
+    ```
+
+    In production environment you can set it for example in `systemd` server file, Docker container or in Kubernetes configuration. 
+
 
 ## API Endpoints
 
@@ -182,16 +192,31 @@ your-project/
 * **`utils/svgExtractor.js`**: This utility is crucial for dissecting raw SVG files, allowing their `<defs>` and `<style>` blocks to be merged intelligently and their main content transformed.
 * **`utils/validator.js`**: Ensures that incoming `weather_code` and `angle` parameters are in the expected format, preventing malformed requests.
 * **`services/weatherSymbolService.js`**:
-    * **Vaisala Weather Codes**: The `parseVaisalaWeatherCode` function interprets the 4-digit Vaisala code into a list of required SVG component names (e.g., `sun`, `cloud-2`, `precip-10`). It includes logic to handle day/night, cloudiness, precipitation type, and rate.
+    * **Vaisala Weather Codes**: The `parseVaisalaWeatherCode` function interprets the 4-digit Vaisala code into a list of required SVG component names (e.g., `sun`, `cloud-2`, `smow`). It includes logic to handle day/night, cloudiness, precipitation type, and rate.
     * **SVG Combination**: For Vaisala symbols, it reads multiple individual SVG element files (from `assets/elements/`), extracts their content, styles, and definitions, then dynamically compiles a single output SVG with appropriate `translate` and `scale` transformations for each component.
     * **Wind Arrow**: For wind arrows, it reads the base `wind-arrow.svg` and applies a `rotate` transformation around its center to achieve the desired direction.
     * **Optimization**: All final SVGs are passed through `svgo` for optimization before being sent as a response.
 
 ## Customization
 
-* **SVG Elements:** Modify or create new SVG files in the `assets/elements/` directory to change the appearance of symbols or add new ones. Ensure naming conventions align with the `weatherSymbolService.js` logic (e.g., `cloud-1.svg`, `precip-20.svg`).
+* **SVG Elements:** Modify or create new SVG files in the `assets/elements/` directory to change the appearance of symbols or add new ones. Ensure naming conventions align with the `weatherSymbolService.js` logic (e.g., `cloud-1.svg`, `snow.svg`).
 * **Vaisala Logic:** Adjust the `addCelestialBody`, `addCloudiness`, and `addPrecipitation` functions within `services/weatherSymbolService.js` to modify how different Vaisala codes are interpreted and how symbols are combined.
 * **Styling & Animation:** Individual SVG elements can contain their own CSS (`<style>`) and SVG animations (`<animate>`, `<animateTransform>`), which will be preserved when combined.
+
+## SVG Elements
+|code | Path | Image
+|---|---|---
+|`d...`|./assets/elements/sun.svg|![sun.svg](./assets/elements/sun.svg)
+|`n...`|./assets/elements/moon.svg|![moon.svg](./assets/elements/moon.svg)
+|`.1..`|./assets/elements/cloud-1.svg|![cloud-1](./assets/elements/cloud-1.svg)
+|`.2..`|./assets/elements/cloud-2.svg|![cloud-2](./assets/elements/cloud-2.svg)
+|`.3..`|./assets/elements/cloud-3.svg|![cloud-3](./assets/elements/cloud-3.svg)
+|`.4..`|./assets/elements/cloud-3.svg|![cloud-3](./assets/elements/cloud-3.svg)
+|`.5..`|./assets/elements/cloud-5.svg|![cloud-5](./assets/elements/cloud-5.svg)
+|`.6..`|./assets/elements/cloud-6.svg|![cloud-6](./assets/elements/cloud-6.svg)
+|`..10`<br/>`..20`<br/>`..30`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/rain.svg|![rain](./assets/elements/rain.svg)|
+|`..12`<br/>`..22`<br/>`..32`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/snow.svg|![rain](./assets/elements/snow.svg)|
+|`..40`|./assets/elements/thunderbolt.svg|![thunderbolt](./assets/elements/thunderbolt.svg)
 
 ## License
 
