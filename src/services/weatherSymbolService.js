@@ -17,14 +17,7 @@ function addCelestialBody(components, dayNight, cloudiness) {
     // Avoid displaying sun/moon if it's very cloudy or foggy (levels 4 or 6)
     if (![4, 6].includes(cloudiness)) {
         const celestialBody = (dayNight === 'd') ? 'sun' : 'moon';
-        let x = 0, y = 0, scale = 1;
-        // Adjust position and scale for partly cloudy conditions
-        if (cloudiness === 1 || cloudiness === 2) {
-            x = -15; // Shift sun/moon to the left
-            y = -15; // Shift sun/moon upwards
-            scale = 0.7; // Make sun/moon slightly smaller
-        }
-        components.push({ name: celestialBody, x, y, scale });
+        components.push({ name: celestialBody, x:0, y:0, scale:1 });
     }
 }
 
@@ -39,18 +32,18 @@ function addCloudiness(components, cloudiness) {
         1: { name: "cloud-1", x: 20, y: 0, scale: 0.7 }, // Partly clear with some clouds
         2: { name: "cloud-2", x: 5, y: 5, scale: 1 },    // Partly cloudy
         3: { name: "cloud-3", x: 0, y: 0, scale: 1 },    // Broken clouds
-        4: { name: "cloud-4", x: 0, y: 0, scale: 1.2 },  // Overcast
+        4: { name: "cloud-3", x: 0, y: 0, scale: 1.2 },  // Overcast
         5: { name: "cloud-5", x: 0, y: 0, scale: 1 },    // Thin high clouds
         6: { name: "cloud-6", x: 0, y: 0, scale: 1 }     // Fog
     };
 
     if (cloudConfigurations[cloudiness]) {
         components.push(cloudConfigurations[cloudiness]);
-    } else if (cloudiness === 0 && components.some(c => c.name.startsWith('precip'))) {
+    } /*else if (cloudiness === 0 && components.some(c => c.name.startsWith('precip'))) {
         // If it's clear (cloudiness 0) but there's precipitation, add an 'overcast' cloud
         // to provide a visual source for the precipitation.
         components.push({ name: 'cloud-4', x: 0, y: 0, scale: 1 });
-    }
+    }*/
 }
 
 /**
@@ -60,24 +53,27 @@ function addCloudiness(components, cloudiness) {
  * @param {number} type - Precipitation type (0: rain, 1: sleet, 2: snow).
  */
 function addPrecipitation(components, rate, type) {
-    if (rate > 0) {
-        let precipName;
-        
-        // Handle thunderstorm (rate 4) which is a special case often combining lightning with precipitation
-        if (rate === 4) {
-            components.push({ name: 'thunderbolt', x: 0, y: 15, scale: 1.2 }); // Add lightning bolt
-            precipName = `precip-storm-${type}`; // e.g., precip-storm-0 for thunderstorm with rain
-        } else {
-            precipName = `precip-${rate}${type}`; // e.g., precip-10 for light rain, precip-21 for sleet showers
+    if (rate <= 0 || rate > 3) return;
+    if (type < 0 || type > 2) return;
+
+    // Handle thunderstorm case where rate is 4
+    if (rate === 4) {
+        components.push({ name: 'thunderbolt', x: 0, y: 0, scale: 1 });
+    }
+
+    const elemScales = [1, 0.9, 0.8];
+    const elemScale = elemScales[rate - 1];
+
+    if (type === 0 || type === 1) {
+        for (let i = 0; i < rate; i++) {
+            components.push({ name: "rain", x: i * 10, y: 20 - i, scale: elemScale });
         }
+    }
 
-        // Default position for precipitation elements; can be adjusted based on rate
-        components.push({ name: precipName, x: 0, y: 20, scale: 1 });
-
-        // You can add more complex scaling or positioning logic here based on 'rate'
-        // For example:
-        // if (rate === 1) components[components.length-1].scale = 0.7; // Lighter rain, smaller drops
-        // if (rate === 3) components[components.length-1].scale = 1.2; // Heavier rain, larger drops
+    if (type === 1 || type === 2) {
+        for (let i = 0; i < rate; i++) {
+            components.push({ name: "snow", x: i * 15, y: 20 + i, scale: elemScale });
+        }
     }
 }
 
@@ -104,7 +100,7 @@ function parseVaisalaWeatherCode(weatherCode) {
     addCelestialBody(components, dayNight, cloudiness);
     addCloudiness(components, cloudiness);
     addPrecipitation(components, precipitationRate, precipitationType);
-    
+
     return components;
 }
 
@@ -114,10 +110,11 @@ function parseVaisalaWeatherCode(weatherCode) {
  * Fetches and generates an SVG for wind direction, rotated to the specified angle.
  * @param {number} angleDegrees - The wind direction in degrees (0-359).
  * @param {string} svgAssetsDir - The path to the SVG assets directory.
+ * @param {boolean} noOptSvg - If set to true does not optimize the output svg, defaults to false.* 
  * @returns {Promise<string>} A promise that resolves to the optimized SVG string.
  * @throws {Error} If the angle is invalid or SVG processing fails.
  */
-async function getWindArrowSvg(angleDegrees, svgAssetsDir) {
+async function getWindArrowSvg(angleDegrees, svgAssetsDir, noOptSvg = false) {
     if (!isValidAngle(angleDegrees)) {
         const error = new Error('Invalid angle parameter for wind direction SVG.');
         error.statusCode = 400;
@@ -159,8 +156,10 @@ async function getWindArrowSvg(angleDegrees, svgAssetsDir) {
                 </g>
             </svg>
         `;
-        
-        const optimizedSvg = optimize(finalSvg, { multipass: true });                
+
+        if (noOptSvg) return finalSvg;
+
+        const optimizedSvg = optimize(finalSvg, { multipass: true });
         return optimizedSvg.data;
 
     } catch (err) {
@@ -176,10 +175,11 @@ async function getWindArrowSvg(angleDegrees, svgAssetsDir) {
  * @param {string} weatherCode - The Vaisala weather code.
  * @param {object} svgParams - SVG parameters (viewBox, width, height).
  * @param {string} svgElementsDir - The path to the directory containing individual SVG element files.
+ * @param {boolean} noOptSvg - If set to true does not optimize the output svg, defaults to false.* 
  * @returns {Promise<string>} A promise that resolves to the optimized combined SVG string.
  * @throws {Error} If the weather code is invalid or SVG combination fails.
  */
-async function getVaisalaSymbolSvg(weatherCode, svgParams, svgElementsDir) {
+async function getVaisalaSymbolSvg(weatherCode, svgParams, svgElementsDir, noOptSvg = false) {
     const { viewBox = "0 0 64 64", width = "64", height = "64" } = svgParams;
 
     const elementsToCombine = parseVaisalaWeatherCode(weatherCode);
@@ -227,7 +227,7 @@ async function getVaisalaSymbolSvg(weatherCode, svgParams, svgElementsDir) {
 
                 // Compose transformation string based on component properties
                 const transform = `translate(${comp.x || 0} ${comp.y || 0}) scale(${comp.scale || 1})` +
-                                  (comp.rotation ? ` rotate(${comp.rotation.angle} ${comp.rotation.cx} ${comp.rotation.cy})` : '');
+                    (comp.rotation ? ` rotate(${comp.rotation.angle} ${comp.rotation.cx} ${comp.rotation.cy})` : '');
 
                 // Add the transformed SVG content (main part of the component) to the aggregation
                 combinedSvgContent += `<g transform="${transform}">${parsed.mainContent}</g>`;
@@ -246,6 +246,8 @@ async function getVaisalaSymbolSvg(weatherCode, svgParams, svgElementsDir) {
                 ${combinedSvgContent}
             </svg>
         `;
+
+        if (noOptSvg) return finalSvg;
 
         // Optimize the combined SVG for better performance and smaller file size
         const optimizedSvg = optimize(finalSvg, { multipass: true });

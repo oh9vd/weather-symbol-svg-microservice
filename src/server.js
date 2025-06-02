@@ -2,14 +2,18 @@
 const express = require('express');
 const path = require('path');
 const weatherSymbolService = require('./services/weatherSymbolService');
-// If still needed for specific cases, otherwise remove
+const {yn} = require('./utils/yn');
+
+// If still needed for specific casesrs, otherwise remove
 const { extractSvgContentAndDefs } = require('./utils/svgExtractor');
 
 const app = express();
-const port = 4000;
+
+const port = process.env.PORT || 4000;
+const noOptSvg = yn(process.env.NOOPTSVG||'');
 
 const ASSETS_DIR = path.join(__dirname, '..', 'assets');
-const ELEMENTS_DIR = path.join(ASSETS_DIR, 'elements')
+const ELEMENTS_DIR = path.join(ASSETS_DIR, 'elements');
 
 // Define asset directories for services
 app.set('svgAssetsDir', ASSETS_DIR);
@@ -24,7 +28,8 @@ app.get('/wind_direction/:angle', async (req, res) => {
         //const { viewBox, width, height } = req.query;
         const svg = await weatherSymbolService.getWindArrowSvg(
             parseInt(angle, 10),
-            app.get('svgAssetsDir') // Pass asset directory to the service
+            app.get('svgAssetsDir'), // Pass asset directory to the service
+            noOptSvg
         );
         res.setHeader('Content-Type', 'image/svg+xml');
         res.send(svg);
@@ -39,12 +44,13 @@ app.get('/wind_direction/:angle', async (req, res) => {
 app.get('/weather_symbol/:weather_code', async (req, res) => {
     try {
         const { weather_code } = req.params;
-        const { viewBox, width, height } = req.query;
+        const { viewBox, width, height} = req.query;
 
         const svg = await weatherSymbolService.getVaisalaSymbolSvg(
             weather_code,
             { viewBox, width, height },
-            app.get('svgElementsDir') // Pass elements directory to the service
+            app.get('svgElementsDir'), // Pass elements directory to the service
+            noOptSvg
         );
         res.setHeader('Content-Type', 'image/svg+xml');
         res.send(svg);
