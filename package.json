@@ -25,6 +25,7 @@
   "homepage": "https://github.com/username/weather-symbol-svg-microservice#readme",
   "devDependencies": {
     "archiver": "^7.0.1",
+    "cross-env": "^7.0.3",
     "esbuild": "^0.25.5",
     "fs-extra": "^11.2.0",
     "nodemon": "^3.1.4"
