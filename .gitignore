@@ -118,4 +118,4 @@ lerna-debug.log
 package-lock.json
 yarn.lock
 
-svg-assets/tests
+assets/test
