@@ -12,7 +12,11 @@ const app = express();
 const port = process.env.PORT || 4000;
 const noOptSvg = yn(process.env.NOOPTSVG||'');
 
-const ASSETS_DIR = path.join(__dirname, '..', 'assets');
+const ASSETS_ROOT = (process.env.ASSETS_BASE_PATH) ? 
+    path.resolve(process.env.ASSETS_BASE_PATH):
+    path.resolve(__dirname, '..');
+
+const ASSETS_DIR = path.join(ASSETS_ROOT, 'assets');
 const ELEMENTS_DIR = path.join(ASSETS_DIR, 'elements');
 
 // Define asset directories for services
