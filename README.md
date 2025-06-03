@@ -91,7 +91,7 @@ To deploy the service:
 
 1. Transfer the `weather-symbol-microservice.zip` file to your target server.
 2. Unzip the package.
-3. Navigate into the unzipped directory (e.g., `dist/` or `eather-symbol-microservice/`).
+3. Navigate into the unzipped directory (e.g., `dist/` or `weather-symbol-microservice/`).
 4. Install production dependencies:
     ```bash
     npm install --production
@@ -104,14 +104,14 @@ To deploy the service:
     node bundle.js
     ```
 
-    Note: The listening port can be set by environment variable `PORT`. If not set the service listen to port `4000`.
+    **Note**: The listening port can be set using the environment variable PORT. If not set, the service will listen on port 4000.
 
     For example:
     ```bash
     PORT=8080 node bundle.js
     ```
 
-    In production environment you can set it for example in `systemd` server file, Docker container or in Kubernetes configuration. 
+    In a production environment, you can set it, for example, in a `systemd` server file, a Docker container, or in a Kubernetes configuration.` 
 
 
 ## API Endpoints
@@ -164,7 +164,7 @@ A simple endpoint to check if the service is running.
     ```
     http://localhost:4000/
     ```
-* **Success Response:** Returns something like `2025-06-01T11:32:43.513Z: SVG Server is running!`, where the date and time is received from current time in server.
+* **Success Response:** Returns something like `2025-06-01T11:32:43.513Z: SVG Server is running!`, where the date and time is retrieved from current time in server.
 
 ## Project Structure
 ```
@@ -179,9 +179,9 @@ your-project/
 ├── assets/                 # Directory for all SVG assets.
 │   ├── elements/           # Individual SVG components for weather symbols (e.g., cloud-1.svg, sun.svg).
 │   └── wind-arrow.svg      # The base SVG for the wind arrow.           
-├── build.js                # Module for distribution package building
-├── LICENSE                 # MIT license 
-├── nodemon.json            # node mon settings for debugging
+├── build.js                # Module for distribution package building.
+├── LICENSE                 # MIT license. 
+├── nodemon.json            # Nodemon settings for debugging.
 ├── package.json            # Project dependencies and scripts.
 └── README.md               # This file.
 ```
@@ -192,7 +192,7 @@ your-project/
 * **`utils/svgExtractor.js`**: This utility is crucial for dissecting raw SVG files, allowing their `<defs>` and `<style>` blocks to be merged intelligently and their main content transformed.
 * **`utils/validator.js`**: Ensures that incoming `weather_code` and `angle` parameters are in the expected format, preventing malformed requests.
 * **`services/weatherSymbolService.js`**:
-    * **Vaisala Weather Codes**: The `parseVaisalaWeatherCode` function interprets the 4-digit Vaisala code into a list of required SVG component names (e.g., `sun`, `cloud-2`, `smow`). It includes logic to handle day/night, cloudiness, precipitation type, and rate.
+    * **Vaisala Weather Codes**: The `parseVaisalaWeatherCode` function interprets the 4-digit Vaisala code into a list of required SVG component names (e.g., `sun`, `cloud-3`, `snow`). It includes logic to handle day/night, cloudiness, precipitation type, and rate.
     * **SVG Combination**: For Vaisala symbols, it reads multiple individual SVG element files (from `assets/elements/`), extracts their content, styles, and definitions, then dynamically compiles a single output SVG with appropriate `translate` and `scale` transformations for each component.
     * **Wind Arrow**: For wind arrows, it reads the base `wind-arrow.svg` and applies a `rotate` transformation around its center to achieve the desired direction.
     * **Optimization**: All final SVGs are passed through `svgo` for optimization before being sent as a response.
@@ -204,17 +204,16 @@ your-project/
 * **Styling & Animation:** Individual SVG elements can contain their own CSS (`<style>`) and SVG animations (`<animate>`, `<animateTransform>`), which will be preserved when combined.
 
 ## SVG Elements
-|code | Path | Image
-|---|---|---
+|code | Path | Image | Note
+|---|---|---|---
 |`d...`|./assets/elements/sun.svg|![sun.svg](./assets/elements/sun.svg)
 |`n...`|./assets/elements/moon.svg|![moon.svg](./assets/elements/moon.svg)
-|`.1..`|./assets/elements/cloud-1.svg|![cloud-1](./assets/elements/cloud-1.svg)
-|`.2..`|./assets/elements/cloud-2.svg|![cloud-2](./assets/elements/cloud-2.svg)
-|`.3..`<br/>`.4..`|./assets/elements/cloud-3.svg|![cloud-3](./assets/elements/cloud-3.svg)
+|`.1..`<br/>`.2..`|./assets/elements/cloud-1.svg|![cloud-1](./assets/elements/cloud-1.svg)| In case of `..1.` the cloud is translated higher and scaled smaller
+|`.3..`<br/>`.4..`|./assets/elements/cloud-3.svg|![cloud-3](./assets/elements/cloud-3.svg)| In case of `.4..` sun/moon is not rendered
 |`.5..`|./assets/elements/cloud-5.svg|![cloud-5](./assets/elements/cloud-5.svg)
 |`.6..`|./assets/elements/cloud-6.svg|![cloud-6](./assets/elements/cloud-6.svg)
-|`..10`<br/>`..20`<br/>`..30`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/rain.svg|![rain](./assets/elements/rain.svg)|
-|`..12`<br/>`..22`<br/>`..32`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/snow.svg|![rain](./assets/elements/snow.svg)|
+|`..10`<br/>`..20`<br/>`..30`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/rain.svg|![rain](./assets/elements/rain.svg)| - The drop is multiplied by the presipiration level. <br/>- If sleet (`...1`) the drops are rendered with snow.
+|`..12`<br/>`..22`<br/>`..32`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/snow.svg|![rain](./assets/elements/snow.svg)| - The snow flake is multiplied by the presipiration level. <br/>- If sleet (`...1`) the snow flakes are rendered with rain drop.
 |`..40`|./assets/elements/thunderbolt.svg|![thunderbolt](./assets/elements/thunderbolt.svg)
 
 ## License
