@@ -119,3 +119,5 @@ package-lock.json
 yarn.lock
 
 assets/test
+
+dist
