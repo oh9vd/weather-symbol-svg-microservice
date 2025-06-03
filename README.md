@@ -85,6 +85,125 @@ After a successful build, the dist/ directory will contain:
 * `assets/`: A copy of your `assets` directory, containing all SVG elements.
 * `weather-symbol-microservice.zip`: The complete distribution package ready for deployment.
 
+### First time installation
+
+**Note** This installation requirements are for Ubuntu 20 LTS.
+
+First time installation steps depends on what you have already installed. This is required to be installed.
+1. Create user and group for running the service as `systemd` daemon process.
+    ```bash
+    sudo adduser --system --no-create-home node_user
+    ```
+    ```bash
+    sudo addgroup node_user
+    ```
+    ```bash
+    sudo usermod -g node_user node_user
+    ```
+2. Create a directory to put the service and set the rights
+    ```bash
+    sudo mkdir -p /opt/weather_symbol_service
+    ``` 
+    ```bash
+    sudo chown node_user:node_user /opt/weather_symbol_service
+    ```
+3. Do the first time deployment
+    Do the distribution package as described in [Deployment](#deployment) section below.
+
+4. Create `systemd` unit file
+    ```bash
+    sudo nano /etc/systemd/system/weather_symbol_service.service
+    ```
+```ini
+[Unit]
+Description=Weather Symbol Microservice
+After=network.target # Ensures network is up before starting
+
+[Service]
+# User and Group under which the service will run
+User=node_user
+Group=node_user # Make sure this group exists, or remove if node_user doesn't have a dedicated group
+
+# Define the working directory for the service
+# This should be the directory where your bundle.js and assets/ are located
+WorkingDirectory=/opt/weather_symbol_service
+# How to start the service:
+# Environment variable to define the base path for assets
+# The value is the absolute path to the directory containing your 'assets' folder
+# (e.g., /opt/weather_symbol_service if assets is directly under /opt/weather_symbol_service)
+Environment="ASSETS_BASE_PATH=/opt/weather_symbol_service"
+# The port that the service listen for incoming requests
+Environment="PORT=4000"
+# The command to execute when the service starts
+# Replace /usr/bin/node with the actual path to your Nodejs executable
+# (You can find it with 'which node' when logged in as the user)
+ExecStart=/usr/bin/node /opt/weather_symbol_service/bundle.js
+# Restart the service if it fails
+Restart=always
+RestartSec=5
+# Log standard output and error to systemd journal
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target # Ensures the service starts when the system boots
+```
+
+**Note** Change the PORT to your preferred unused port or keep the existing.
+
+5. Reload systemd daemon
+
+    ```bash
+    sudo systemctl daemon-reload
+    ```
+
+6. Start the service
+
+    ```bash
+    sudo systemctl start weather_symbol_service
+    ```
+7. Check the sservice starts normally
+
+    ```bash
+    sudo systemctl status weather_symbol_service
+    ```
+    It should return something like:
+
+    ```
+    weather_symbol_service.service - Weather Symbol service
+     Loaded: loaded (/etc/systemd/system/weather_symbol_service.service; disabled; vendor preset: enabled)
+     Active: active (running) since Tue 2025-06-03 17:37:50 EEST; 15s ago
+   Main PID: 634355 (node)
+      Tasks: 7 (limit: 4181)
+     Memory: 35.4M
+     CGroup: /system.slice/weather_symbol_service.service
+             └─634355 /usr/bin/node /opt/weather_symbol_service/bundle.js
+     ... systemd[1]: Started Weather Symbol service.
+     ... node[634355]: SVG server running at http://localhost:4000
+
+    ```
+8. Enable the service to run after booting the host
+    ```bash
+    sudo systemctl enable weather_symbol_service
+    ```
+9. Check the health endpoint:
+    ```bash
+    curl localhost:4000
+    ```
+
+    it should return something like:
+    ```
+    2025-06-03T14:52:43.948Z: SVG Server is running!
+    ```
+10. Check the system log for errors
+    ```bash
+    sudo journalctl -u weather_symbol_service.service -f
+    ```
+
+    **Note**: The `journalctl -f` command will show you the real-time logs of your service, which is very useful for debugging startup issues.
+
+Now you can access the weather and wind arrow symbols as described in the endpoint descriptions.
+
 ### Deployment
 
 To deploy the service:
@@ -112,6 +231,29 @@ To deploy the service:
     ```
 
     In a production environment, you can set it, for example, in a `systemd` server file, a Docker container, or in a Kubernetes configuration.` 
+
+6. Copy the deployment archive `weather-symbol-microservice.zip` to target by the method you prefer. (for example using `scp`).
+
+   **Note** `node_user` does not have home directory. If using `scp` you need to copy the distribution package fist to some user that you have write access, and then move the zip-file to the `/opt/weather_symbol_service` directory.
+
+7. In the target host, move the zip to installation directory `/opt/weather_symbol_server`, unzip it, and install the dependencies. 
+    
+    Run the following commands
+    ```bash
+    sudo mv weather-symbol-microservice.zip /opt/weather_symbol_service/.
+    ```
+    ```bash        
+    cd /opt/weather_symbol_service
+    ```
+    ```bash     
+    sudo unzip weather-symbol-microservice.zip
+    ```
+    ```bash     
+    sudo chown -R node_user:node_user /opt/weather_symbol_service/
+    ```
+    ```bash     
+    sudo -u node_user npm install --production
+    ```
 
 
 ## API Endpoints
@@ -141,13 +283,13 @@ Generate a weather symbol based on a Vaisala weather code.
 
 Generate a wind arrow rotated to a specific angle.
 
-* **URL:** `/wind_arrow/:angle`
+* **URL:** `/wind_direction/:angle`
 * **Method:** `GET`
 * **URL Parameters:**
     * `angle`: The rotation angle in degrees (0-359).
 * **Example Request:**
     ```
-    http://localhost:4000/wind_arrow/90
+    http://localhost:4000/wind_direction/90
     ```
 * **Success Response:** Returns an `image/svg+xml` with the rotated wind arrow.
 * **Error Response:**
