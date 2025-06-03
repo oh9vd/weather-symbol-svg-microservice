@@ -1,20 +1,25 @@
 <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
-<defs>
-    <style type="text/css">
-        .bolt-fill {
-            fill: yellow;
-        }
+    <defs>
+        <style type="text/css">
+            .bolt-stroke {
+                stroke: yellow; 
+                stroke-width: 2.5; 
+                stroke-linecap: round; 
+                stroke-linejoin: round; 
+            }
 
-        .bolt-stroke {
-            stroke: currentColor;
-            stroke-width: 1;
-            stroke-linejoin: round;
-        }
+            .bolt-shadow-stroke {
+                stroke: darkgrey; 
+                stroke-width: 3.5; 
+                stroke-linecap: bevel;
+                stroke-linejoin: bevel;
+            }
+        </style>
+        <polyline id="thunderbolt-line"  points="3 0,0 10,3 10, 0 20" />
+    </defs>
 
-    </style>
-    
-</defs>
-<g >
-    <rect class="bolt-fill bolt-stroke" x="0" y="0" width="10" height="20" />
-</g>
+    <use href="#thunderbolt-line" class="bolt-shadow-stroke"/> 
+    <use href="#thunderbolt-line" class="bolt-stroke"/> 
+    <animate attributeName="opacity" values="0; 1; 0" keyTimes="0; 0.05; 1" dur="2.5s" begin="0s" repeatCount="indefinite" />
+
 </svg>
