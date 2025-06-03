@@ -30,7 +30,7 @@ function addCloudiness(components, cloudiness) {
     // Ensure these files (cloud-1.svg, cloud-2.svg etc.) exist in the assets/elements directory
     const cloudConfigurations = {
         1: { name: "cloud-1", x: 20, y: 0, scale: 0.7 }, // Partly clear with some clouds
-        2: { name: "cloud-2", x: 5, y: 5, scale: 1 },    // Partly cloudy
+        2: { name: "cloud-1", x: 5, y: 5, scale: 1 },    // Partly cloudy
         3: { name: "cloud-3", x: 0, y: 0, scale: 1 },    // Broken clouds
         4: { name: "cloud-3", x: 0, y: 0, scale: 1.2 },  // Overcast
         5: { name: "cloud-5", x: 0, y: 0, scale: 1 },    // Thin high clouds
