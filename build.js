@@ -12,6 +12,8 @@ const assetsSourceDir = path.resolve(__dirname, 'assets');
 const assetsDestDir = path.join(outputDir, 'assets'); // Assetsien kohde dist-kansiossa
 const zipFileName = 'weather-symbol-microservice.zip'; // Luotavan zip-tiedoston nimi
 const zipFilePath = path.join(outputDir, zipFileName); // Zip-tiedoston koko polku
+const packageJsonSource = path.resolve(__dirname, 'package.json'); 
+const pckageJsonDest = path.resolve(outputDir, 'package.json');
 
 async function buildProject() {
     // Varmista, että output-hakemisto on olemassa
@@ -41,12 +43,18 @@ async function buildProject() {
         await fse.copy(assetsSourceDir, assetsDestDir, { overwrite: true });
         console.log(`✅ Assets copied to: ${assetsDestDir}`);
 
+        console.log('Copying package.json...'); 
+        await fse.copy(packageJsonSource, pckageJsonDest, { overwrite: true }); 
+        console.log(`✅ package.json copied to: ${pckageJsonDest}`);        
+
         // --- Vaihe 3: Pakkaa dist-hakemisto zip-tiedostoksi ---
         console.log(`Creating zip archive: ${zipFilePath}...`);
         await createZipArchive(outputDir, zipFilePath);
-        console.log(`✅ Distribution package created: ${zipFilePath}`);
+        console.log(`✅ Distribution package created: ${zipFilePath} `);
+        
+        console.log(`\n🚀 ${new Date().toUTCString()}: Build process completed successfully!`);
 
-        console.log("\n🚀 Build process completed successfully!");
+        console.log("\n😄 Remember to run 'npm install --production' in destination environment.")
 
     } catch (error) {
         console.error('❌ Build failed:', error);
