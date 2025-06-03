@@ -2,19 +2,32 @@
     <defs>
         <style type="text/css">
             .cloud-fill {
-                fill: #fff1;
+                fill: #fff;
             }         
 
             .cloud-stroke {
                 stroke: currentColor;
-                stroke-width: 1.5;
+                stroke-width: 0.5;
                 stroke-linejoin: round;
             }
 
-            .fog-stroke {
-                stroke: currentColor;
-                stroke-width: 1;
+            /* Varsinainen sumuviiva */
+            .fog-line {
+                stroke: #eee; /* Vaalea väri */
+                stroke-width: 1.5;
                 stroke-linejoin: round;
+                stroke-linecap: round;
+                stroke-dasharray: 4 2;
+            }
+
+            /* Varjo-viiva (musta, paksumpi) */
+            .fog-shadow-line {
+                stroke: currentColor; /* Aina musta */
+                stroke-width: 2.5; /* Paksumpi kuin varsinainen viiva */
+                stroke-linejoin: round;
+                stroke-linecap: round;
+                stroke-dasharray: 4 2; /* Sama katkoviiva-kuvio */
+                opacity: 0.6; /* Säädä läpinäkyvyyttä */
             }
         </style>
         <g id="cloud-1" class="cloud-fill cloud-stroke" transform="translate(-15,-20.5)">
@@ -32,12 +45,16 @@
                 repeatCount="indefinite" 
                 additive="sum" />
         </g>
-        <line id="fog" class="fog-stroke" x1="0" y1="0" x2="30" y2="0" stroke-dasharray="4" />
+        
+        <g id="fog-segment-with-shadow">
+            <path class="fog-shadow-line" d="M0 0 L30 0" /> 
+            <path class="fog-line" d="M0 0 L30 0" />        
+        </g>
     </defs>
     <g>
         <use href="#cloud-1" transform="scale(1)"/> 
-        <use href="#fog" transform="translate(6,28)"/>  
-        <use href="#fog" transform="translate(10,32)"/>
-        <use href="#fog" transform="translate(7,36)"/>            
+        <use href="#fog-segment-with-shadow" transform="translate(6,28)"/>  
+        <use href="#fog-segment-with-shadow" transform="translate(10,32)"/>
+        <use href="#fog-segment-with-shadow" transform="translate(7,36)"/>            
     </g>
 </svg>
