@@ -4,6 +4,7 @@
   "execMap": {
     "js": "node --inspect"
   },
+  "signal": "SIGHUP",
   "exec": "cross-env PORT=4000 node --inspect src/server.js",
   "ignore": [
     "node_modules",
