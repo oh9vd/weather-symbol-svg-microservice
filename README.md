@@ -210,8 +210,7 @@ your-project/
 |`n...`|./assets/elements/moon.svg|![moon.svg](./assets/elements/moon.svg)
 |`.1..`|./assets/elements/cloud-1.svg|![cloud-1](./assets/elements/cloud-1.svg)
 |`.2..`|./assets/elements/cloud-2.svg|![cloud-2](./assets/elements/cloud-2.svg)
-|`.3..`|./assets/elements/cloud-3.svg|![cloud-3](./assets/elements/cloud-3.svg)
-|`.4..`|./assets/elements/cloud-3.svg|![cloud-3](./assets/elements/cloud-3.svg)
+|`.3..`<br/>`.4..`|./assets/elements/cloud-3.svg|![cloud-3](./assets/elements/cloud-3.svg)
 |`.5..`|./assets/elements/cloud-5.svg|![cloud-5](./assets/elements/cloud-5.svg)
 |`.6..`|./assets/elements/cloud-6.svg|![cloud-6](./assets/elements/cloud-6.svg)
 |`..10`<br/>`..20`<br/>`..30`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/rain.svg|![rain](./assets/elements/rain.svg)|
