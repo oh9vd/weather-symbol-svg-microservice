@@ -214,7 +214,7 @@ your-project/
 |`.6..`|./assets/elements/cloud-6.svg|![cloud-6](./assets/elements/cloud-6.svg)
 |`..10`<br/>`..20`<br/>`..30`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/rain.svg|![rain](./assets/elements/rain.svg)| - The drop is multiplied by the presipiration level. <br/>- If sleet (`...1`) the drops are rendered with snow.
 |`..12`<br/>`..22`<br/>`..32`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/snow.svg|![rain](./assets/elements/snow.svg)| - The snow flake is multiplied by the presipiration level. <br/>- If sleet (`...1`) the snow flakes are rendered with rain drop.
-|`..40`|./assets/elements/thunderbolt.svg|![thunderbolt](./assets/elements/thunderbolt.svg)
+|`..40`|./assets/elements/thunderbolt.svg|![thunderbolt](./assets/elements/thunderbolt.svg)| The precipitation level is adjusted to 2 
 
 ## License
 
