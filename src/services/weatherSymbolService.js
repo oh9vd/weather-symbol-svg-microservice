@@ -31,19 +31,15 @@ function addCloudiness(components, cloudiness) {
     const cloudConfigurations = {
         1: { name: "cloud-1", x: 20, y: 0, scale: 0.7 }, // Partly clear with some clouds
         2: { name: "cloud-1", x: 5, y: 5, scale: 1 },    // Partly cloudy
-        3: { name: "cloud-3", x: 0, y: 0, scale: 1 },    // Broken clouds
-        4: { name: "cloud-3", x: 0, y: 0, scale: 1.2 },  // Overcast
+        3: { name: "cloud-3", x: 0, y: 0, scale: 1.2 },  // Broken clouds
+        4: { name: "cloud-3", x: 0, y: 0, scale: 1.5 },  // Overcast
         5: { name: "cloud-5", x: 0, y: 0, scale: 1 },    // Thin high clouds
         6: { name: "cloud-6", x: 0, y: 0, scale: 1 }     // Fog
     };
 
     if (cloudConfigurations[cloudiness]) {
         components.push(cloudConfigurations[cloudiness]);
-    } /*else if (cloudiness === 0 && components.some(c => c.name.startsWith('precip'))) {
-        // If it's clear (cloudiness 0) but there's precipitation, add an 'overcast' cloud
-        // to provide a visual source for the precipitation.
-        components.push({ name: 'cloud-4', x: 0, y: 0, scale: 1 });
-    }*/
+    } 
 }
 
 /**
@@ -53,12 +49,13 @@ function addCloudiness(components, cloudiness) {
  * @param {number} type - Precipitation type (0: rain, 1: sleet, 2: snow).
  */
 function addPrecipitation(components, rate, type) {
-    if (rate <= 0 || rate > 3) return;
+    if (rate <= 0 || rate > 4) return;
     if (type < 0 || type > 2) return;
 
     // Handle thunderstorm case where rate is 4
     if (rate === 4) {
-        components.push({ name: 'thunderbolt', x: 0, y: 0, scale: 1 });
+        components.push({ name: 'thunderbolt', x: 30, y: 30, scale: 1 });
+        rate = 2;
     }
 
     const elemScales = [1, 0.9, 0.8];
