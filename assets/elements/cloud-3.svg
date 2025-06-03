@@ -6,9 +6,10 @@
         </radialGradient>
 
         <radialGradient id="cloud-3-dark-gradient">
-            <stop offset="0%" stop-color="#777d" />
-            <stop offset="100%" stop-color="#dddd" />
-        </radialGradient>        
+            <stop offset="0%" stop-color="#555d" />
+            <stop offset="100%" stop-color="#aaad" />
+        </radialGradient>
+
         <style type="text/css">
             .cloud-3-fill {
                 fill: url(#cloud-3-gradient);
@@ -16,7 +17,7 @@
 
             .cloud-3-dark-fill {
                 fill: url(#cloud-3-dark-gradient);
-            }            
+            }
 
             .cloud-3-stroke {
                 stroke: currentColor;
@@ -30,14 +31,8 @@
                     h17.2
                     c4.4-0.5 7.9-4 7.9-8.4
                     z" />
-            <animateTransform 
-                attributeName="transform" 
-                type="translate" 
-                values="0;5;0" 
-                keyTimes="0;0.5;1" 
-                dur="7s"
-                repeatCount="indefinite" 
-                additive="sum" />
+            <animateTransform attributeName="transform" type="translate" values="0;5;0" keyTimes="0;0.5;1" dur="7s"
+                repeatCount="indefinite" additive="sum" />
         </g>
         <g id="cloud-3-dark" class="cloud-3-dark-fill cloud-3-stroke" transform="translate(-15,-20.5)">
             <path d="m47.7 35.4
@@ -45,18 +40,12 @@
                     h17.2
                     c4.4-0.5 7.9-4 7.9-8.4
                     z" />
-            <animateTransform 
-                attributeName="transform" 
-                type="translate" 
-                values="5;0;5" 
-                keyTimes="0;0.5;1" 
-                dur="11s"
-                repeatCount="indefinite" 
-                additive="sum" />
+            <animateTransform attributeName="transform" type="translate" values="5;0;5" keyTimes="0;0.5;1" dur="11s"
+                repeatCount="indefinite" additive="sum" />
         </g>
     </defs>
     <g>
-        <use href="#cloud-3"/>
-        <use href="#cloud-3-dark" transform="scale(0.5) translate(10,20)"/>        
+        <use href="#cloud-3" />
+        <use href="#cloud-3-dark" transform="scale(0.5) translate(10,20)" />
     </g>
 </svg>
