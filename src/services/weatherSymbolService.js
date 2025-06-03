@@ -49,29 +49,34 @@ function addCloudiness(components, cloudiness) {
  * @param {number} type - Precipitation type (0: rain, 1: sleet, 2: snow).
  */
 function addPrecipitation(components, rate, type) {
-    if (rate <= 0 || rate > 4) return;
-    if (type < 0 || type > 2) return;
-
-    // Handle thunderstorm case where rate is 4
+    if (rate <= 0 || rate > 4 || type < 0 || type > 2) return;
+    
+    const elemScales = [1, 0.9, 0.8];
+    
     if (rate === 4) {
         components.push({ name: 'thunderbolt', x: 30, y: 30, scale: 1 });
-        rate = 2;
+        rate = 2; // Adjust rate for subsequent precipitation
     }
 
-    const elemScales = [1, 0.9, 0.8];
     const elemScale = elemScales[rate - 1];
 
-    if (type === 0 || type === 1) {
-        for (let i = 0; i < rate; i++) {
-            components.push({ name: "rain", x: i * 10, y: 20 - i, scale: elemScale });
-        }
-    }
+    const precipitationTypes = [
+        { name: "rain", xOffset: 10, yOffset: -1 }, 
+        { name: "snow", xOffset: 15, yOffset: 1 }
+    ];
 
-    if (type === 1 || type === 2) {
-        for (let i = 0; i < rate; i++) {
-            components.push({ name: "snow", x: i * 15, y: 20 + i, scale: elemScale });
+    precipitationTypes.forEach((precipitation, index) => {
+        if (type === 1 || type === index) {
+            for (let i = 0; i < rate; i++) {
+                components.push({ 
+                    name: precipitation.name,
+                    x: i * precipitation.xOffset,
+                    y: 20 + i * precipitation.yOffset,
+                    scale: elemScale 
+                });
+            }
         }
-    }
+    });
 }
 
 /**
