@@ -142,13 +142,13 @@ async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg=f
         const baseWindArrowSvgRaw = await fs.readFile(svgPath, 'utf8');
         const parsedBaseSvg = extractSvgContentAndDefs(baseWindArrowSvgRaw);
 
-    if (!parsedBaseSvg) {
-      const error = new Error(
-        `Error parsing ${symbolName}.svg: Invalid SVG structure.`
-      );
-      error.statusCode = 500;
-      throw error;
-    }
+        if (!parsedBaseSvg) {
+            const error = new Error(
+                `Error parsing ${symbolName}.svg: Invalid SVG structure.`
+            );
+            error.statusCode = 500;
+            throw error;
+        }
 
         // Assumed size and center point of the base SVG
         const baseSvgWidth = 24;
@@ -175,7 +175,7 @@ async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg=f
         // Still assuming that (12,12) is the arrow's center in a 24x24 area.
 
         const finalSvg = `
-            <svg width="${width}" height="${height}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
+            <svg width="${width}" height="${height}" viewBox=${viewBox} xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <style type="text/css">${parsedBaseSvg.style}</style>
                     ${parsedBaseSvg.defs}
@@ -281,7 +281,7 @@ async function getVaisalaSymbolSvg(
 
     // Construct the final SVG by combining all extracted parts
     const finalSvg = `
-            <svg width="${width}" height="${height}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
+            <svg width="${width}" height="${height}" viewBox=${viewBox} xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <style type="text/css">
                         ${combinedStyles}
