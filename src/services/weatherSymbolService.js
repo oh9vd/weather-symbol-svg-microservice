@@ -98,6 +98,7 @@ function parseVaisalaWeatherCode(weatherCode) {
     precipitationRateChar,
     precipitationTypeChar,
   ] = weatherCode;
+  
   const cloudiness = parseInt(cloudinessChar, 10);
   const precipitationRate = parseInt(precipitationRateChar, 10);
   const precipitationType = parseInt(precipitationTypeChar, 10);
