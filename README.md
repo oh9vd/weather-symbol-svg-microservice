@@ -89,7 +89,7 @@ After a successful build, the dist/ directory will contain:
 
 **Note** This installation requirements are for Ubuntu 20 LTS.
 
-First time installation steps depends on what you have already installed. This is required to be installed.
+First time installation steps depend on what you have already installed. This is required to be installed.
 1. Create user and group for running the service as `systemd` daemon process.
     ```bash
     sudo adduser --system --no-create-home node_user
@@ -108,7 +108,7 @@ First time installation steps depends on what you have already installed. This i
     sudo chown node_user:node_user /opt/weather_symbol_service
     ```
 3. Do the first time deployment
-    Do the distribution package as described in [Deployment](#deployment) section below.
+    Do the first time deployment by creating the distribution package as described in the [Deployment](#deployment) section below.
 
 4. Create `systemd` unit file
     ```bash
@@ -149,7 +149,7 @@ StandardError=syslog
 WantedBy=multi-user.target # Ensures the service starts when the system boots
 ```
 
-**Note** Change the PORT to your preferred unused port or keep the existing.
+**Note** Change the PORT to your preferred unused port or keep the existing value.
 
 5. Reload systemd daemon
 
@@ -162,7 +162,7 @@ WantedBy=multi-user.target # Ensures the service starts when the system boots
     ```bash
     sudo systemctl start weather_symbol_service
     ```
-7. Check the sservice starts normally
+7. Check the service starts normally
 
     ```bash
     sudo systemctl status weather_symbol_service
@@ -191,7 +191,7 @@ WantedBy=multi-user.target # Ensures the service starts when the system boots
     curl localhost:4000
     ```
 
-    it should return something like:
+    It should return something like:
     ```
     2025-06-03T14:52:43.948Z: SVG Server is running!
     ```
@@ -202,7 +202,7 @@ WantedBy=multi-user.target # Ensures the service starts when the system boots
 
     **Note**: The `journalctl -f` command will show you the real-time logs of your service, which is very useful for debugging startup issues.
 
-Now you can access the weather and wind arrow symbols as described in the endpoint descriptions.
+Now you can access the weather and wind arrow symbols as described in the endpoint descriptions above.
 
 ### Deployment
 
@@ -230,13 +230,13 @@ To deploy the service:
     PORT=8080 node bundle.js
     ```
 
-    In a production environment, you can set it, for example, in a `systemd` server file, a Docker container, or in a Kubernetes configuration.` 
+    In a production environment, you can set it, for example, in a `systemd` unit file, a Docker container, or in a Kubernetes configuration.
 
-6. Copy the deployment archive `weather-symbol-microservice.zip` to target by the method you prefer. (for example using `scp`).
+6. Copy the deployment archive `weather-symbol-microservice.zip` to the target by your preferred method. (for example using `scp`).
 
-   **Note** `node_user` does not have home directory. If using `scp` you need to copy the distribution package fist to some user that you have write access, and then move the zip-file to the `/opt/weather_symbol_service` directory.
+   **Note** `node_user` does not have home directory. If using `scp`, you need to copy the distribution package first to a user account you have write access to, and then move the zip file to the`/opt/weather_symbol_service` directory.
 
-7. In the target host, move the zip to installation directory `/opt/weather_symbol_server`, unzip it, and install the dependencies. 
+7. On the target host, move the zip to installation directory `/opt/weather_symbol_server`, unzip it, and install the dependencies.
     
     Run the following commands
     ```bash
@@ -254,7 +254,6 @@ To deploy the service:
     ```bash     
     sudo -u node_user npm install --production
     ```
-
 
 ## API Endpoints
 
@@ -354,8 +353,8 @@ your-project/
 |`.3..`<br/>`.4..`|./assets/elements/cloud-3.svg|![cloud-3](./assets/elements/cloud-3.svg)| In case of `.4..` sun/moon is not rendered
 |`.5..`|./assets/elements/cloud-5.svg|![cloud-5](./assets/elements/cloud-5.svg)
 |`.6..`|./assets/elements/cloud-6.svg|![cloud-6](./assets/elements/cloud-6.svg)
-|`..10`<br/>`..20`<br/>`..30`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/rain.svg|![rain](./assets/elements/rain.svg)| - The drop is multiplied by the presipiration level. <br/>- If sleet (`...1`) the drops are rendered with snow.
-|`..12`<br/>`..22`<br/>`..32`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/snow.svg|![rain](./assets/elements/snow.svg)| - The snow flake is multiplied by the presipiration level. <br/>- If sleet (`...1`) the snow flakes are rendered with rain drop.
+|`..10`<br/>`..20`<br/>`..30`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/rain.svg|![rain](./assets/elements/rain.svg)| - The drop is multiplied by the precipitation level. <br/>- If sleet (`...1`) the drops are rendered with snow.
+|`..12`<br/>`..22`<br/>`..32`<br/>`..11`<br/>`..21`<br/>`..31`|./assets/elements/snow.svg|![rain](./assets/elements/snow.svg)| - The snow flake is multiplied by the precipitation level. <br/>- If sleet (`...1`) the snow flakes are rendered with rain drop.
 |`..40`|./assets/elements/thunderbolt.svg|![thunderbolt](./assets/elements/thunderbolt.svg)| The precipitation level is adjusted to 2 
 
 ## License
