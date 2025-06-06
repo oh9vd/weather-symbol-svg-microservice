@@ -111,24 +111,28 @@ function parseVaisalaWeatherCode(weatherCode) {
 /**
  * Fetches and generates an SVG for wind direction, rotated to the specified angle.
  * @param {number} angleDegrees - The wind direction in degrees (0-359).
+ * @param {object} svgParams - SVG parameters (viewBox, width, height).
  * @param {string} svgAssetsDir - The path to the SVG assets directory.
- * @param {boolean} noOptSvg - If set to true does not optimize the output svg, defaults to false.* 
- * @returns {Promise<string>} A promise that resolves to the optimized SVG string.
+ * @param {boolean} noOptSvg - If set to true does not optimize the output svg, defaults to false.
+ * @returns {Promise<string>} A promise that resolves to the raw SVG string.
  * @throws {Error} If the angle is invalid or SVG processing fails.
  */
-async function getWindArrowSvg(angleDegrees, svgAssetsDir, noOptSvg = false) {
+async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg=false) {
     if (!isValidAngle(angleDegrees)) {
         const error = new Error('Invalid angle parameter for wind direction SVG.');
         error.statusCode = 400;
         throw error;
     }
 
+    // Set default values if they are not provided
+    const { viewBox = "0 0 64 64", width = "64", height = "64" } = svgParams;
+
     const symbolName = 'wind-arrow';
     const svgPath = path.join(svgAssetsDir, `${symbolName}.svg`);
 
     try {
-        // Reads the base wind arrow SVG. Assumes it's a 24x24 SVG
-        // with the arrow centered around (12,12) in its own coordinate system.
+        // Reads the base SVG. Assumes it is a 24x24 SVG
+        // The arrow is assumed to be centered at (12,12) in its own coordinates.
         const baseWindArrowSvgRaw = await fs.readFile(svgPath, 'utf8');
         const parsedBaseSvg = extractSvgContentAndDefs(baseWindArrowSvgRaw);
 
@@ -138,32 +142,51 @@ async function getWindArrowSvg(angleDegrees, svgAssetsDir, noOptSvg = false) {
             throw error;
         }
 
-        // To center the 24x24 arrow within a 64x64 viewBox,
-        // we need to translate it by (32-12, 32-12) = (20,20).
-        // The rotation is then applied around its original center (12,12),
-        // which effectively rotates it around (32,32) within the 64x64 viewBox.
-        const translateX = 32 - 12;
-        const translateY = 32 - 12;
+        // Assumed size and center point of the base SVG
+        const baseSvgWidth = 24;
+        const baseSvgHeight = 24;
+        const baseSvgCenterX = baseSvgWidth / 2; // 12
+        const baseSvgCenterY = baseSvgHeight / 2; // 12
+
+        // Actual width and height of the target SVG in numeric form
+        const targetWidth = parseFloat(width);
+        const targetHeight = parseFloat(height);
+
+        // Calculate scale factor so that the arrow scales correctly and fits in the area.
+        // Use Math.min so that the arrow does not exceed either dimension if the target is not square.
+        const scaleFactor = Math.min(targetWidth / baseSvgWidth, targetHeight / baseSvgHeight);
+
+        // --- Order and calculation of transformations (critical!) ---
+        // Order: Move to center -> Rotate -> Scale -> Move back to position
+        // Here we rotate and scale around the origin (0,0), then move it to its final position.
+        // This is often the simplest way when the object's internal structure is 'centered'.
+
+        // If the points in the arrow's path data are drawn starting from 0,0,
+        // (i.e., the arrow points upwards and its tip is at (0,0)),
+        // Then baseSvgCenterX/Y are the arrow's "anchor point" or rotation point.
+        // Still assuming that (12,12) is the arrow's center in a 24x24 area.
 
         const finalSvg = `
-            <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+            <svg width="${width}" height="${height}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <style type="text/css">${parsedBaseSvg.style}</style>
                     ${parsedBaseSvg.defs}
                 </defs>
-                <g transform="translate(${translateX} ${translateY})">
-                    <g transform="rotate(${angleDegrees} 12 12)">
-                        ${parsedBaseSvg.mainContent}
-                    </g>
+                <g transform="
+                    translate(${targetWidth / 2} ${targetHeight / 2})         
+                    rotate(${angleDegrees})                                   
+                    scale(${scaleFactor})                                     
+                    translate(${-baseSvgCenterX} ${-baseSvgCenterY})">
+                    ${parsedBaseSvg.mainContent}
                 </g>
             </svg>
         `;
 
-        if (noOptSvg) return finalSvg;
+        if (false) return finalSvg;
 
+        // Optimize the combined SVG for better performance and smaller file size
         const optimizedSvg = optimize(finalSvg, { multipass: true });
         return optimizedSvg.data;
-
     } catch (err) {
         console.error(`Error loading or processing wind arrow symbol:`, err);
         const error = new Error('Failed to generate wind direction SVG.');
