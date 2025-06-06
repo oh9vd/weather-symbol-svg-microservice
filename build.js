@@ -43,7 +43,7 @@ async function buildProject() {
 
     console.log("Copying package.json...");
     await fse.copy(packageJsonSource, packageJsonDest, { overwrite: true });
-    console.log(`✅ package.json copied to: ${pckageJsonDest}`);
+    console.log(`✅ package.json copied to: ${packageJsonDest}`);
 
     // Step 3: Package dist directory as a zip file ---
     console.log(`Creating zip archive: ${zipFilePath}...`);
