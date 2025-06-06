@@ -175,7 +175,7 @@ async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg=f
         // Still assuming that (12,12) is the arrow's center in a 24x24 area.
 
         const finalSvg = `
-            <svg width="${width}" height="${height}" viewBox=${viewBox} xmlns="http://www.w3.org/2000/svg">
+            <svg width="${width}" height="${height}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <style type="text/css">${parsedBaseSvg.style}</style>
                     ${parsedBaseSvg.defs}
@@ -190,7 +190,7 @@ async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg=f
             </svg>
         `;
 
-        if (false) return finalSvg;
+        if (noOptSvg) return finalSvg;
 
         // Optimize the combined SVG for better performance and smaller file size
         const optimizedSvg = optimize(finalSvg, { multipass: true });
