@@ -13,7 +13,36 @@ const assetsDestDir = path.join(outputDir, "assets"); // Destination for assets 
 const zipFileName = "weather-symbol-microservice.zip"; // Name of the zip file to create
 const zipFilePath = path.join(outputDir, zipFileName); // Full path to the zip file
 const packageJsonSource = path.resolve(__dirname, "package.json");
-const packageJsonDest = path.resolve(outputDir, "package.json"); // <-- fixed typo
+const packageJsonDest = path.resolve(outputDir, "package.json");
+
+// Get app version
+const packageJson = JSON.parse(fse.readFileSync(packageJsonSource, 'utf8'));
+const APP_VERSION = packageJson.version; 
+
+// Get git commit hash
+const { execSync } = require('child_process');
+let GIT_COMMIT_HASH;
+try {
+  GIT_COMMIT_HASH = execSync('git rev-parse HEAD').toString().trim();
+  console.log(`Building version ${APP_VERSION} (Git Commit: ${GIT_COMMIT_HASH})`);
+} catch (e) {
+  console.warn("Git not found or commit hash could not be determined.");
+  GIT_COMMIT_HASH = 'unknown';
+}
+
+const buildOptions = {
+  entryPoints: ['src/server.js'],
+  bundle: true,
+  outfile: 'dist/bundle.js',
+  platform: 'node',
+  target: 'node22', // Or your target Node.js version
+  // Define GLOBAL environment variables that esbuild will replace in the bundled code
+  define: {
+    'process.env.APP_VERSION': JSON.stringify(APP_VERSION),
+    'process.env.GIT_COMMIT_HASH': JSON.stringify(GIT_COMMIT_HASH),
+  }
+};
+
 
 async function buildProject() {
   // Varmista, että output-hakemisto on olemassa

@@ -22,6 +22,9 @@ app.set("svgElementsDir", ELEMENTS_DIR);
 
 // -- Routes --
 
+const APP_VERSION = process.env.APP_VERSION || 'unknown';
+const GIT_COMMIT_HASH = process.env.GIT_COMMIT_HASH || 'unknown';
+
 // Route for wind arrow SVGs
 app.get('/wind_direction/:angle', async (req, res) => {
     try {
@@ -66,6 +69,18 @@ app.get("/weather_symbol/:weather_code", async (req, res) => {
 app.get("/", (req, res) => {
   const utc = new Date().toISOString();
   res.send(`${utc}: SVG Server is running!`);
+});
+
+
+// Version check endpoint
+app.get('/version', (req, res) => {
+  res.json({
+    appName: "Weather Symbol Microservice",
+    version: APP_VERSION,
+    commitHash: GIT_COMMIT_HASH,
+    buildDate: new Date().toISOString(),
+    nodeEnv: process.env.NODE_ENV 
+  });
 });
 
 // Start the server
