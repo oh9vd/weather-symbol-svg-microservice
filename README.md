@@ -286,9 +286,13 @@ Generate a wind arrow rotated to a specific angle.
 * **Method:** `GET`
 * **URL Parameters:**
     * `angle`: The rotation angle in degrees (0-359).
+* **Query Parameters (Optional):**
+    * `width`: Desired width of the SVG (default: `64`).
+    * `height`: Desired height of the SVG (default: `64`).
+    * `viewBox`: Desired `viewBox` attribute for the SVG (default: `0 0 64 64`).
 * **Example Request:**
     ```
-    http://localhost:4000/wind_direction/90
+    http://localhost:4000/wind_direction/90?width=100&height=100
     ```
 * **Success Response:** Returns an `image/svg+xml` with the rotated wind arrow.
 * **Error Response:**
