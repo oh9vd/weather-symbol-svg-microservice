@@ -14,11 +14,11 @@ const { isValidWeatherCode, isValidAngle } = require("../utils/validator");
  * @param {number} cloudiness - Cloudiness level (0-6).
  */
 function addCelestialBody(components, dayNight, cloudiness) {
-  // Avoid displaying sun/moon if it's very cloudy or foggy (levels 4 or 6)
-  if (![4, 6].includes(cloudiness)) {
-    const celestialBody = dayNight === "d" ? "sun" : "moon";
-    components.push({ name: celestialBody, x: 0, y: 0, scale: 1 });
-  }
+    // Avoid displaying sun/moon if it's very cloudy or foggy (levels 4 or 6)
+    if (![4, 6].includes(cloudiness)) {
+        const celestialBody = dayNight === "d" ? "sun" : "moon";
+        components.push({ name: celestialBody, x: 0, y: 0, scale: 1 });
+    }
 }
 
 /**
@@ -27,19 +27,19 @@ function addCelestialBody(components, dayNight, cloudiness) {
  * @param {number} cloudiness - Cloudiness level (0-6).
  */
 function addCloudiness(components, cloudiness) {
-  // Ensure these files (cloud-1.svg, cloud-3.svg, cloud-5.svg, cloud-6.svg) exist in the assets directory
-  const cloudConfigurations = {
-    1: { name: "cloud-1", x: 20, y: 0, scale: 0.7 }, // Partly clear with some clouds
-    2: { name: "cloud-1", x: 5, y: 5, scale: 1 }, // Partly cloudy
-    3: { name: "cloud-3", x: 0, y: 0, scale: 1.2 }, // Broken clouds
-    4: { name: "cloud-3", x: 0, y: 0, scale: 1.5 }, // Overcast
-    5: { name: "cloud-5", x: 0, y: 0, scale: 1 }, // Thin high clouds
-    6: { name: "cloud-6", x: 0, y: 0, scale: 1 }, // Fog
-  };
+    // Ensure these files (cloud-1.svg, cloud-3.svg, cloud-5.svg, cloud-6.svg) exist in the assets directory
+    const cloudConfigurations = {
+        1: { name: "cloud-1", x: 20, y: 0, scale: 0.7 }, // Partly clear with some clouds
+        2: { name: "cloud-1", x: 5, y: 5, scale: 1 }, // Partly cloudy
+        3: { name: "cloud-3", x: 0, y: 0, scale: 1.2 }, // Broken clouds
+        4: { name: "cloud-3", x: 0, y: 0, scale: 1.5 }, // Overcast
+        5: { name: "cloud-5", x: 0, y: 0, scale: 1 }, // Thin high clouds
+        6: { name: "cloud-6", x: 0, y: 0, scale: 1 }, // Fog
+    };
 
-  if (cloudConfigurations[cloudiness]) {
-    components.push(cloudConfigurations[cloudiness]);
-  }
+    if (cloudConfigurations[cloudiness]) {
+        components.push(cloudConfigurations[cloudiness]);
+    }
 }
 
 /**
@@ -49,34 +49,34 @@ function addCloudiness(components, cloudiness) {
  * @param {number} type - Precipitation type (0: rain, 1: sleet, 2: snow).
  */
 function addPrecipitation(components, rate, type) {
-  if (rate <= 0 || rate > 4 || type < 0 || type > 2) return;
+    if (rate <= 0 || rate > 4 || type < 0 || type > 2) return;
 
-  const elemScales = [1, 0.9, 0.8];
+    const elemScales = [1, 0.9, 0.8];
 
-  if (rate === 4) {
-    components.push({ name: "thunderbolt", x: 30, y: 30, scale: 1 });
-    rate = 2; // Adjust rate for subsequent precipitation
-  }
-
-  const elemScale = elemScales[rate - 1];
-
-  const precipitationTypes = [
-    { name: "rain", xOffset: 10, yOffset: -1 },
-    { name: "snow", xOffset: 15, yOffset: 1 },
-  ];
-
-  precipitationTypes.forEach((precipitation, index) => {
-    if (type === 1 || type === index) {
-      for (let i = 0; i < rate; i++) {
-        components.push({
-          name: precipitation.name,
-          x: i * precipitation.xOffset,
-          y: 20 + i * precipitation.yOffset,
-          scale: elemScale,
-        });
-      }
+    if (rate === 4) {
+        components.push({ name: "thunderbolt", x: 30, y: 30, scale: 1 });
+        rate = 2; // Adjust rate for subsequent precipitation
     }
-  });
+
+    const elemScale = elemScales[rate - 1];
+
+    const precipitationTypes = [
+        { name: "rain", xOffset: 10, yOffset: -1 },
+        { name: "snow", xOffset: 15, yOffset: 1 },
+    ];
+
+    precipitationTypes.forEach((precipitation, index) => {
+        if (type === 1 || type === index) {
+            for (let i = 0; i < rate; i++) {
+                components.push({
+                    name: precipitation.name,
+                    x: i * precipitation.xOffset,
+                    y: 20 + i * precipitation.yOffset,
+                    scale: elemScale,
+                });
+            }
+        }
+    });
 }
 
 /**
@@ -86,30 +86,30 @@ function addPrecipitation(components, rate, type) {
  * @throws {Error} If the weather code format is invalid.
  */
 function parseVaisalaWeatherCode(weatherCode) {
-  if (!isValidWeatherCode(weatherCode)) {
-    const error = new Error("Invalid Vaisala weather code format.");
-    error.statusCode = 400; // Indicate a bad request
-    throw error;
-  }
+    if (!isValidWeatherCode(weatherCode)) {
+        const error = new Error("Invalid Vaisala weather code format.");
+        error.statusCode = 400; // Indicate a bad request
+        throw error;
+    }
 
-  const [
-    dayNight,
-    cloudinessChar,
-    precipitationRateChar,
-    precipitationTypeChar,
-  ] = weatherCode;
-  
-  const cloudiness = parseInt(cloudinessChar, 10);
-  const precipitationRate = parseInt(precipitationRateChar, 10);
-  const precipitationType = parseInt(precipitationTypeChar, 10);
+    const [
+        dayNight,
+        cloudinessChar,
+        precipitationRateChar,
+        precipitationTypeChar,
+    ] = weatherCode;
 
-  const components = [];
+    const cloudiness = parseInt(cloudinessChar, 10);
+    const precipitationRate = parseInt(precipitationRateChar, 10);
+    const precipitationType = parseInt(precipitationTypeChar, 10);
 
-  addCelestialBody(components, dayNight, cloudiness);
-  addCloudiness(components, cloudiness);
-  addPrecipitation(components, precipitationRate, precipitationType);
+    const components = [];
 
-  return components;
+    addCelestialBody(components, dayNight, cloudiness);
+    addCloudiness(components, cloudiness);
+    addPrecipitation(components, precipitationRate, precipitationType);
+
+    return components;
 }
 
 // --- Service Functions ---
@@ -123,7 +123,7 @@ function parseVaisalaWeatherCode(weatherCode) {
  * @returns {Promise<string>} A promise that resolves to the raw SVG string.
  * @throws {Error} If the angle is invalid or SVG processing fails.
  */
-async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg=false) {
+async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg = false) {
     if (!isValidAngle(angleDegrees)) {
         const error = new Error('Invalid angle parameter for wind direction SVG.');
         error.statusCode = 400;
@@ -133,8 +133,8 @@ async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg=f
     // Set default values if they are not provided
     const { viewBox = "0 0 64 64", width = "64", height = "64" } = svgParams;
 
-  const symbolName = "wind-arrow";
-  const svgPath = path.join(svgAssetsDir, `${symbolName}.svg`);
+    const symbolName = "wind-arrow";
+    const svgPath = path.join(svgAssetsDir, `${symbolName}.svg`);
 
     try {
         // Reads the base SVG. Assumes it is a 24x24 SVG
@@ -213,75 +213,75 @@ async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg=f
  * @throws {Error} If the weather code is invalid or SVG combination fails.
  */
 async function getVaisalaSymbolSvg(
-  weatherCode,
-  svgParams,
-  svgElementsDir,
-  noOptSvg = false
+    weatherCode,
+    svgParams,
+    svgElementsDir,
+    noOptSvg = false
 ) {
-  const { viewBox = "0 0 64 64", width = "64", height = "64" } = svgParams;
+    const { viewBox = "0 0 64 64", width = "64", height = "64" } = svgParams;
 
-  const elementsToCombine = parseVaisalaWeatherCode(weatherCode);
+    const elementsToCombine = parseVaisalaWeatherCode(weatherCode);
 
-  // If parseVaisalaWeatherCode throws, this check won't be reached.
-  // This check is mainly for cases where the parsing function might return an empty array
-  // without throwing for specific unprocessable codes (though it's designed to throw now).
-  if (elementsToCombine.length === 0) {
-    const error = new Error(
-      "Invalid or unprocessable Vaisala weather code resulted in no components."
-    );
-    error.statusCode = 400;
-    throw error;
-  }
-
-  try {
-    const elementPromises = elementsToCombine.map(async (comp) => {
-      const svgPath = path.join(svgElementsDir, `${comp.name}.svg`);
-      try {
-        return await fs.readFile(svgPath, "utf8");
-      } catch (err) {
-        // Log a warning if an element file is not found but allow the process to continue.
-        console.warn(
-          `Warning: SVG element '${comp.name}.svg' not found at ${svgPath}. It will be skipped.`
+    // If parseVaisalaWeatherCode throws, this check won't be reached.
+    // This check is mainly for cases where the parsing function might return an empty array
+    // without throwing for specific unprocessable codes (though it's designed to throw now).
+    if (elementsToCombine.length === 0) {
+        const error = new Error(
+            "Invalid or unprocessable Vaisala weather code resulted in no components."
         );
-        return null; // Return null if the file is not found
-      }
-    });
+        error.statusCode = 400;
+        throw error;
+    }
 
-    const rawSvgContents = await Promise.all(elementPromises);
-    let combinedSvgContent = "";
-    let combinedStyles = "";
-    // Using a Set to ensure unique <defs> content when combining multiple SVGs
-    let combinedDefs = new Set();
+    try {
+        const elementPromises = elementsToCombine.map(async (comp) => {
+            const svgPath = path.join(svgElementsDir, `${comp.name}.svg`);
+            try {
+                return await fs.readFile(svgPath, "utf8");
+            } catch (err) {
+                // Log a warning if an element file is not found but allow the process to continue.
+                console.warn(
+                    `Warning: SVG element '${comp.name}.svg' not found at ${svgPath}. It will be skipped.`
+                );
+                return null; // Return null if the file is not found
+            }
+        });
 
-    rawSvgContents.forEach((svgRaw, i) => {
-      if (!svgRaw) return; // Skip null values (for missing files)
+        const rawSvgContents = await Promise.all(elementPromises);
+        let combinedSvgContent = "";
+        let combinedStyles = "";
+        // Using a Set to ensure unique <defs> content when combining multiple SVGs
+        let combinedDefs = new Set();
 
-      const comp = elementsToCombine[i];
-      const parsed = extractSvgContentAndDefs(svgRaw);
+        rawSvgContents.forEach((svgRaw, i) => {
+            if (!svgRaw) return; // Skip null values (for missing files)
 
-      if (parsed) {
-        // Accumulate styles, ensuring each style block is on a new line
-        combinedStyles += `${parsed.style}\n`;
-        // Add defs content to the Set to ensure uniqueness
-        if (parsed.defs) {
-          combinedDefs.add(parsed.defs);
-        }
+            const comp = elementsToCombine[i];
+            const parsed = extractSvgContentAndDefs(svgRaw);
 
-        // Compose transformation string based on component properties
-        const transform =
-          `translate(${comp.x || 0} ${comp.y || 0}) 
+            if (parsed) {
+                // Accumulate styles, ensuring each style block is on a new line
+                combinedStyles += `${parsed.style}\n`;
+                // Add defs content to the Set to ensure uniqueness
+                if (parsed.defs) {
+                    combinedDefs.add(parsed.defs);
+                }
+
+                // Compose transformation string based on component properties
+                const transform =
+                    `translate(${comp.x || 0} ${comp.y || 0}) 
            scale(${comp.scale || 1})` +
-          (comp.rotation
-            ? ` rotate(${comp.rotation.angle} ${comp.rotation.cx} ${comp.rotation.cy})`
-            : "");
+                    (comp.rotation
+                        ? ` rotate(${comp.rotation.angle} ${comp.rotation.cx} ${comp.rotation.cy})`
+                        : "");
 
-        // Add the transformed SVG content (main part of the component) to the aggregation
-        combinedSvgContent += `<g transform="${transform}">${parsed.mainContent}</g>`;
-      }
-    });
+                // Add the transformed SVG content (main part of the component) to the aggregation
+                combinedSvgContent += `<g transform="${transform}">${parsed.mainContent}</g>`;
+            }
+        });
 
-    // Construct the final SVG by combining all extracted parts
-    const finalSvg = `
+        // Construct the final SVG by combining all extracted parts
+        const finalSvg = `
             <svg width="${width}" height="${height}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <style type="text/css">
@@ -293,20 +293,20 @@ async function getVaisalaSymbolSvg(
             </svg>
         `;
 
-    if (noOptSvg) return finalSvg;
+        if (noOptSvg) return finalSvg;
 
-    // Optimize the combined SVG for better performance and smaller file size
-    const optimizedSvg = optimize(finalSvg, { multipass: true });
-    return optimizedSvg.data;
-  } catch (err) {
-    console.error("Error in getVaisalaSymbolSvg:", err);
-    const error = new Error("Failed to generate Vaisala symbol SVG.");
-    error.statusCode = 500;
-    throw error;
-  }
+        // Optimize the combined SVG for better performance and smaller file size
+        const optimizedSvg = optimize(finalSvg, { multipass: true });
+        return optimizedSvg.data;
+    } catch (err) {
+        console.error("Error in getVaisalaSymbolSvg:", err);
+        const error = new Error("Failed to generate Vaisala symbol SVG.");
+        error.statusCode = 500;
+        throw error;
+    }
 }
 
 module.exports = {
-  getWindArrowSvg,
-  getVaisalaSymbolSvg,
+    getWindArrowSvg,
+    getVaisalaSymbolSvg,
 };
