@@ -269,7 +269,8 @@ async function getVaisalaSymbolSvg(
 
         // Compose transformation string based on component properties
         const transform =
-          `translate(${comp.x || 0} ${comp.y || 0}) scale(${comp.scale || 1})` +
+          `translate(${comp.x || 0} ${comp.y || 0}) 
+           scale(${comp.scale || 1})` +
           (comp.rotation
             ? ` rotate(${comp.rotation.angle} ${comp.rotation.cx} ${comp.rotation.cy})`
             : "");
@@ -281,7 +282,7 @@ async function getVaisalaSymbolSvg(
 
     // Construct the final SVG by combining all extracted parts
     const finalSvg = `
-            <svg width="${width}" height="${height}" viewBox=${viewBox} xmlns="http://www.w3.org/2000/svg">
+            <svg width="${width}" height="${height}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <style type="text/css">
                         ${combinedStyles}
