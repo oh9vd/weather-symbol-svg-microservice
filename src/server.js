@@ -13,7 +13,8 @@ const ASSETS_ROOT = process.env.ASSETS_BASE_PATH
   ? path.resolve(process.env.ASSETS_BASE_PATH)
   : path.resolve(__dirname, "..");
 
-const APP_VERSION = process.env.APP_VERSION || 'unknown';  
+const APP_VERSION = process.env.APP_VERSION || 'unknown';
+const GIT_COMMIT_HASH = process.env.GIT_COMMIT_HASH || 'unknown'; 
 
 const ASSETS_DIR = path.join(ASSETS_ROOT, "assets");
 const ELEMENTS_DIR = path.join(ASSETS_DIR, "elements");
@@ -66,13 +67,8 @@ app.get("/weather_symbol/:weather_code", async (req, res) => {
 
 // Health check endpoint
 app.get("/", (req, res) => {
-  const utc = new Date().toISOString();
-  res.send(`${utc}: Weather Symbol Microservice is running!`);
-});
-
-// Version check endpoint
-app.get('/version', (req, res) => {
   res.json({
+    ts: new Date().toISOString(),
     appName: "Weather Symbol Microservice",
     version: APP_VERSION,
     commitHash: GIT_COMMIT_HASH, 
