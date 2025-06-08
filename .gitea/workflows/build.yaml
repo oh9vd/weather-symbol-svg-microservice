@@ -28,3 +28,5 @@ jobs:
       - name: Deploy (Example - replace with your actual deployment steps)
         run: echo "Deployment step goes here, e.g., rsync, docker build/push"
         # Tämä on paikka, johon voit lisätä komennot, jotka vievät palvelun tuotantoon.
+
+        
