@@ -1,0 +1,30 @@
+name: Build Microservice
+
+on: [push, pull_request] # Käynnistyy, kun koodia pushataan tai pull request avataan/päivitetään
+
+jobs:
+  build:
+    runs-on: [linux/amd64, host] # Varmista, että Runnerillasi on nämä labelit
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Kloonaa peilatun GitHub-repon koodin
+
+      - name: Set up Node.js (if your microservice uses it)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # Tai mikä tahansa tarvitsemasi Node.js-versio
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests (if you have them)
+        run: npm test
+
+      - name: Build project (if needed)
+        run: npm run build
+        # Tai jos kyseessä on vain SVG-tiedostojen tarjoaminen, tämä askel voi olla yksinkertaisempi tai tarpeeton.
+
+      - name: Deploy (Example - replace with your actual deployment steps)
+        run: echo "Deployment step goes here, e.g., rsync, docker build/push"
+        # Tämä on paikka, johon voit lisätä komennot, jotka vievät palvelun tuotantoon.
