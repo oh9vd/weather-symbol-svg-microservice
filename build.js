@@ -1,8 +1,10 @@
 const esbuild = require("esbuild");
 const path = require("path");
 const fs = require("fs/promises"); // Native Node.js fs.promises
+const fsSync = require("fs"); // for synchronous file access
 const fse = require("fs-extra"); // fs-extra for directory copying
 const archiver = require("archiver"); // For creating zip archives
+const { execSync } = require('child_process'); // For executing shell commands (like git)
 
 // Define source and destination paths
 const entryPoint = path.resolve(__dirname, "src", "server.js");
@@ -15,34 +17,28 @@ const zipFilePath = path.join(outputDir, zipFileName); // Full path to the zip f
 const packageJsonSource = path.resolve(__dirname, "package.json");
 const packageJsonDest = path.resolve(outputDir, "package.json");
 
-// Get app version
-const packageJson = JSON.parse(fse.readFileSync(packageJsonSource, 'utf8'));
-const APP_VERSION = packageJson.version; 
+// --- Get the version number ---
+let APP_VERSION = 'unknown';
+let GIT_COMMIT_HASH = 'unknown';
 
-// Get git commit hash
-const { execSync } = require('child_process');
-let GIT_COMMIT_HASH;
 try {
-  GIT_COMMIT_HASH = execSync('git rev-parse HEAD').toString().trim();
-  console.log(`Building version ${APP_VERSION} (Git Commit: ${GIT_COMMIT_HASH})`);
+  const packageJsonPath = path.resolve(__dirname, 'package.json');
+  const packageJson = JSON.parse(fsSync.readFileSync(packageJsonSource, 'utf8')); 
+  APP_VERSION = packageJson.version || 'unknown';
 } catch (e) {
-  console.warn("Git not found or commit hash could not be determined.");
-  GIT_COMMIT_HASH = 'unknown';
+  console.warn("⚠️ Warning: Could not read package.json for version. Using 'unknown'.", e.message);
 }
 
-const buildOptions = {
-  entryPoints: ['src/server.js'],
-  bundle: true,
-  outfile: 'dist/bundle.js',
-  platform: 'node',
-  target: 'node22', // Or your target Node.js version
-  // Define GLOBAL environment variables that esbuild will replace in the bundled code
-  define: {
-    'process.env.APP_VERSION': JSON.stringify(APP_VERSION),
-    'process.env.GIT_COMMIT_HASH': JSON.stringify(GIT_COMMIT_HASH),
-  }
-};
+try {
+  // Try to fetch git commit hash, git is required in build environment
+  GIT_COMMIT_HASH = execSync('git rev-parse --short HEAD').toString().trim();
+} catch (e) {
+  console.warn("⚠️ Warning: Git commit hash could not be determined (is Git installed and is this a Git repo?). Using 'unknown'.", e.message);
+}
 
+console.log(`Building application version: ${APP_VERSION}`);
+console.log(`Building from Git commit: ${GIT_COMMIT_HASH}`);
+// --- End of version number fetch ---
 
 async function buildProject() {
   // Varmista, että output-hakemisto on olemassa
@@ -60,6 +56,12 @@ async function buildProject() {
       sourcemap: false,
       logLevel: "info",
       external: ["express", "svgo", "cors"],
+      // --- UUSI LOHKO: Define -määritykset ---
+      define: {
+        'process.env.APP_VERSION': JSON.stringify(APP_VERSION),
+        'process.env.GIT_COMMIT_HASH': JSON.stringify(GIT_COMMIT_HASH),
+      },
+      // --- LOHKON LOPPU ---
     });
     console.log(`✅ JavaScript bundle created: ${outputFile}`);
 
@@ -102,7 +104,7 @@ function createZipArchive(sourceDir, outPath) {
   return new Promise((resolve, reject) => {
     const output = fse.createWriteStream(outPath);
     const archive = archiver("zip", {
-      zlib: { level: 9 }, // Paras pakkaustaso
+      zlib: { level: 9 }, // Best compression level
     });
 
     output.on("close", () => {
@@ -124,12 +126,13 @@ function createZipArchive(sourceDir, outPath) {
 
     archive.pipe(output);
 
-    // Lisää kaikki tiedostot ja kansiot sourceDir:stä
-    // Huomaa: sourceDir on 'dist', joten arkistoon tulee 'bundle.js', 'assets/' jne.
-    archive.directory(sourceDir, false); // 'false' tarkoittaa, että se ei luo "dist/"-kansiota zip-tiedoston sisälle
+    // Add all files and folders from sourceDir
+    // Note: sourceDir is 'dist', so the archive will contain 'bundle.js', 'assets/' etc.
+    archive.directory(sourceDir, false); // 'false' means it won't create a "dist/" folder inside the zip file
 
     archive.finalize();
   });
 }
 
+// Call the build function
 buildProject();

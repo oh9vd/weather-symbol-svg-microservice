@@ -13,6 +13,9 @@ const ASSETS_ROOT = process.env.ASSETS_BASE_PATH
   ? path.resolve(process.env.ASSETS_BASE_PATH)
   : path.resolve(__dirname, "..");
 
+const APP_VERSION = process.env.APP_VERSION || 'unknown';
+const GIT_COMMIT_HASH = process.env.GIT_COMMIT_HASH || 'unknown'; 
+
 const ASSETS_DIR = path.join(ASSETS_ROOT, "assets");
 const ELEMENTS_DIR = path.join(ASSETS_DIR, "elements");
 
@@ -21,9 +24,6 @@ app.set("svgAssetsDir", ASSETS_DIR);
 app.set("svgElementsDir", ELEMENTS_DIR);
 
 // -- Routes --
-
-const APP_VERSION = process.env.APP_VERSION || 'unknown';
-const GIT_COMMIT_HASH = process.env.GIT_COMMIT_HASH || 'unknown';
 
 // Route for wind arrow SVGs
 app.get('/wind_direction/:angle', async (req, res) => {
@@ -67,23 +67,20 @@ app.get("/weather_symbol/:weather_code", async (req, res) => {
 
 // Health check endpoint
 app.get("/", (req, res) => {
-  const utc = new Date().toISOString();
-  res.send(`${utc}: SVG Server is running!`);
-});
-
-
-// Version check endpoint
-app.get('/version', (req, res) => {
   res.json({
+    ts: new Date().toISOString(),
     appName: "Weather Symbol Microservice",
     version: APP_VERSION,
-    commitHash: GIT_COMMIT_HASH,
-    buildDate: new Date().toISOString(),
+    commitHash: GIT_COMMIT_HASH, 
+    buildDate: new Date().toISOString(), 
     nodeEnv: process.env.NODE_ENV 
   });
 });
 
+
 // Start the server
 app.listen(port, () => {
-  console.log(`SVG server running at http://localhost:${port}`);
+  console.log(`${new Date().toISOString()}: Weather Symbol Microservice is running on port ${port}!`);
+  console.log(`Application Version: ${APP_VERSION}`);
+  console.log(`Git Commit: ${GIT_COMMIT_HASH}`); 
 });
