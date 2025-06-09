@@ -47,9 +47,15 @@ jobs:
           # -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
 
           # Synkronoi tiedostot Rsyncilla
-          # Huomaa `./dist/`: jos build-vaihe tuottaa tiedostot tähän kansioon.
-          # Muokkaa, jos lähde on suoraan repositorion juuri (esim. `./`)
-          rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no" ./dist/ ${TARGET_USER}@${TARGET_HOST}:${TARGET_PATH}/
+          # VAIHDA -avz -> -rvz.
+          # -r: rekursiivisesti (kopioi alihakemistot)
+          # -v: verbose (näyttää mitä tekee)
+          # -z: pakkaa (vähentää verkkoliikennettä)
+          # --delete: poistaa ylimääräiset tiedostot kohteesta
+          # Poistamalla -a lipun, emme yritä asettaa aikaleimoja tai muita omistajuuksia,
+          # jotka aiheuttivat "Operation not permitted" -virheen rsyncissä.
+          rsync -rvz --delete -e "ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no" ./dist/ ${TARGET_USER}@${TARGET_HOST}:${TARGET_PATH}/
+
 
           echo "Executing deploy script on target."
           ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no ${TARGET_USER}@${TARGET_HOST} "sudo /usr/local/bin/deploy_weather_service.sh"
