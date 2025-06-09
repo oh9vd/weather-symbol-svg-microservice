@@ -58,11 +58,6 @@ jobs:
           echo "Executing deploy script on target."
           ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no ${TARGET_USER}@${TARGET_HOST} "sudo /usr/local/bin/deploy_weather_service.sh"
 
-          # Käynnistä Systemd-palvelu uudelleen kohdekoneella
-          # 'sudo' tarvitaan, koska 'systemctl restart' vaatii root-oikeudet,
-          # ja olemme antaneet gitea-deploy-käyttäjälle oikeudet tähän komennon suorittamiseen 'sudoers'-tiedostossa.
-          ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no ${TARGET_USER}@${TARGET_HOST} "sudo systemctl restart weather-symbol-microservice.service"
-
           echo "Deployment complete."
 
           # Poista yksityinen avain turvallisuussyistä
