@@ -24,7 +24,6 @@
   },
   "homepage": "https://github.com/username/weather-symbol-svg-microservice#readme",
   "devDependencies": {
-    "archiver": "^7.0.1",
     "chai": "^5.2.0",
     "cross-env": "^7.0.3",
     "esbuild": "^0.25.5",
