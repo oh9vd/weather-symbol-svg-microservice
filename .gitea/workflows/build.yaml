@@ -70,8 +70,9 @@ jobs:
           # Yritä kutsua URLia useita kertoja pienellä viiveellä.
           # Palvelu saattaa kestää hetken käynnistyä uudelleen.
           for i in $(seq 1 10); do # Yritä 10 kertaa (10 * 5s = 50s max odotus)
-            echo "Check response code..."
+            echo "DEBUG: Check response code..."
             response=$(curl -s -o /dev/null -w "%{http_code}" ${SERVICE_URL})
+            echo "DEBUG: Got response $response"           
             if [ "$response" = "200" ]; then
               echo "Service responded with HTTP 200. Checking content..."
               # Tarkista vastauksen sisältö. Etsitään merkkijonoa "appName"
