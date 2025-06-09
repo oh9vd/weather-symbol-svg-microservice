@@ -64,30 +64,35 @@ jobs:
           rm ~/.ssh/id_rsa_deploy
       - name: Verify Service Health
         env:
-          SERVICE_URL: http://192.168.68.118:4000 # Varmista, että URL ja portti ovat oikein
+          SERVICE_URL: http://192.168.68.118:4000
         run: |
           echo "Waiting for service to become available at ${SERVICE_URL}..."
-          # Yritä kutsua URLia useita kertoja pienellä viiveellä.
-          # Palvelu saattaa kestää hetken käynnistyä uudelleen.
-          for i in $(seq 1 10); do # Yritä 10 kertaa (10 * 5s = 50s max odotus)
-            echo "DEBUG: Check response code..."
-            response=$(curl -s -o /dev/null -w "%{http_code}" ${SERVICE_URL})
-            echo "DEBUG: Got response $response"           
-            if [ "$response" = "200" ]; then
+          # UUSI LISÄYS: Anna palvelulle hieman aikaa käynnistyä heti restartin jälkeen
+          echo "DEBUG: Initial sleep for 10 seconds to allow service to start..."
+          sleep 10 # Odota 10 sekuntia ennen ensimmäistä curl-kutsua
+
+          for i in $(seq 1 10); do
+            echo "DEBUG: Attempt $i - Checking response code..."
+            # Lisää --connect-timeout curl-komentoon. Tämä pakottaa curl:in aikakatkaisuun, jos yhteys ei muodostu.
+            HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" --connect-timeout 5 "${SERVICE_URL}")
+            echo "DEBUG: Got HTTP status: $HTTP_STATUS"           
+            if [ "$HTTP_STATUS" = "200" ]; then
               echo "Service responded with HTTP 200. Checking content..."
-              # Tarkista vastauksen sisältö. Etsitään merkkijonoa "appName"
-              # Käytetään grep -q, joka palauttaa 0 jos löytää, ei tulosta mitään.
-              if curl -s ${SERVICE_URL} | grep -q '"appName":"Weather Symbol Microservice"'; then
+              RESPONSE_BODY=$(curl -s "${SERVICE_URL}")
+              echo "DEBUG: Full service response body for content check:"
+              echo "${RESPONSE_BODY}"
+              if echo "${RESPONSE_BODY}" | grep -q '"appName":"Weather Symbol Microservice"'; then
                 echo "Service health check PASSED!"
-                exit 0 # Kaikki kunnossa, poistu onnistuneesti
+                exit 0
               else
                 echo "Service responded with HTTP 200, but content check FAILED. Retrying..."
+                echo "DEBUG: Expected pattern '\"appName\":\"Weather Symbol Microservice\"' not found in response."
               fi
             else
-              echo "Service not yet available (HTTP ${response}). Retrying in 5 seconds..."
+              echo "Service not yet available (HTTP ${HTTP_STATUS}). Retrying in 5 seconds..."
             fi
-            sleep 5 # Odota 5 sekuntia ennen seuraavaa yritystä
+            sleep 5
           done
 
           echo "Service health check FAILED: Service did not respond as expected after multiple retries."
-          exit 1 # Epäonnistui, poistu virheellä          
+          exit 1        
