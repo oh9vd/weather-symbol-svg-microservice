@@ -12,8 +12,8 @@ const outputDir = path.resolve(__dirname, "dist");
 const outputFile = path.join(outputDir, "bundle.js");
 const assetsSourceDir = path.resolve(__dirname, "assets");
 const assetsDestDir = path.join(outputDir, "assets"); // Destination for assets in dist
-const zipFileName = "weather-symbol-microservice.zip"; // Name of the zip file to create
-const zipFilePath = path.join(outputDir, zipFileName); // Full path to the zip file
+//const zipFileName = "weather-symbol-microservice.zip"; // Name of the zip file to create
+//const zipFilePath = path.join(outputDir, zipFileName); // Full path to the zip file
 const packageJsonSource = path.resolve(__dirname, "package.json");
 const packageJsonDest = path.resolve(outputDir, "package.json");
 
@@ -77,9 +77,9 @@ async function buildProject() {
     console.log(`✅ package.json copied to: ${packageJsonDest}`);
 
     // Step 3: Package dist directory as a zip file ---
-    console.log(`Creating zip archive: ${zipFilePath}...`);
-    await createZipArchive(outputDir, zipFilePath);
-    console.log(`✅ Distribution package created: ${zipFilePath} `);
+    //console.log(`Creating zip archive: ${zipFilePath}...`);
+    //await createZipArchive(outputDir, zipFilePath);
+    //console.log(`✅ Distribution package created: ${zipFilePath} `);
 
     console.log(
       `\n🚀 ${new Date().toUTCString()}: Build process completed successfully!`
@@ -100,7 +100,7 @@ async function buildProject() {
  * @param {string} outPath - Path and name of the zip file to create.
  * @returns {Promise<void>}
  */
-function createZipArchive(sourceDir, outPath) {
+/* function createZipArchive(sourceDir, outPath) {
   return new Promise((resolve, reject) => {
     const output = fse.createWriteStream(outPath);
     const archive = archiver("zip", {
@@ -132,7 +132,7 @@ function createZipArchive(sourceDir, outPath) {
 
     archive.finalize();
   });
-}
+} */
 
 // Call the build function
 buildProject();
