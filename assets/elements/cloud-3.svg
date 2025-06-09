@@ -1,12 +1,12 @@
 <svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
     <defs>
         <radialGradient id="cloud-3-gradient">
-            <stop offset="0%" stop-color="#999c" />
+            <stop offset="0%" stop-color="#99ac" />
             <stop offset="100%" stop-color="#dddc" />
         </radialGradient>
 
         <radialGradient id="cloud-3-dark-gradient">
-            <stop offset="0%" stop-color="#555d" />
+            <stop offset="0%" stop-color="#556d" />
             <stop offset="100%" stop-color="#aaad" />
         </radialGradient>
 
@@ -40,7 +40,7 @@
                     h17.2
                     c4.4-0.5 7.9-4 7.9-8.4
                     z" />
-            <animateTransform attributeName="transform" type="translate" values="5;0;5" keyTimes="0;0.5;1" dur="11s"
+            <animateTransform attributeName="transform" type="translate" values="-10;10;-10" keyTimes="0;0.5;1" dur="11s"
                 repeatCount="indefinite" additive="sum" />
         </g>
     </defs>
