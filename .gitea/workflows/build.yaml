@@ -46,16 +46,14 @@ jobs:
           # Jos haluat aloittaa yksinkertaisesti, voit ohittaa StrictHostKeyCheckingin:
           # -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
 
-          # Synkronoi tiedostot Rsyncilla
-          # VAIHDA -avz -> -rvz.
-          # -r: rekursiivisesti (kopioi alihakemistot)
-          # -v: verbose (näyttää mitä tekee)
-          # -z: pakkaa (vähentää verkkoliikennettä)
-          # --delete: poistaa ylimääräiset tiedostot kohteesta
-          # Poistamalla -a lipun, emme yritä asettaa aikaleimoja tai muita omistajuuksia,
-          # jotka aiheuttivat "Operation not permitted" -virheen rsyncissä.
-          rsync -rvz --delete -e "ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no" ./dist/ ${TARGET_USER}@${TARGET_HOST}:${TARGET_PATH}/
+          # UUSI LISÄYS: Varmista, että deploy-käyttäjä omistaa hakemiston ENNEN rsync --delete -operaatiota
+          echo "Executing pre-deploy chown for rsync deletion."
+          ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no ${TARGET_USER}@${TARGET_HOST} "sudo /usr/local/bin/pre_deploy_chown.sh"
 
+          # Synkronoi tiedostot Rsyncilla
+          # Nyt voimme käyttää -avz-lippua, koska gitea-deploy omistaa kohteen.
+          echo "Copy files to target."
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no" ./dist/ ${TARGET_USER}@${TARGET_HOST}:${TARGET_PATH}/
 
           echo "Executing deploy script on target."
           ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no ${TARGET_USER}@${TARGET_HOST} "sudo /usr/local/bin/deploy_weather_service.sh"
