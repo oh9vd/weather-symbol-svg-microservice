@@ -22,9 +22,48 @@ jobs:
         run: npm run build
         # Tai jos kyseessä on vain SVG-tiedostojen tarjoaminen, tämä askel voi olla yksinkertaisempi tai tarpeeton.
 
-      - name: Deploy (Example - replace with your actual deployment steps)
-        run: echo "Deployment step goes here, e.g., rsync, docker build/push"
-        # Tämä on paikka, johon voit lisätä komennot, jotka vievät palvelun tuotantoon.
+      - name: Deploy via SSH and Rsync
+        env:
+          # Gitean Secretsiin tallennettu yksityinen SSH-avain
+          SSH_PRIVATE_KEY: ${{ secrets.DEPLOY_SSH_PRIVATE_KEY }}
+          # Kohdekoneen deploy-käyttäjä, jonka loimme
+          TARGET_USER: gitea-deploy
+          # Kohdekoneen IP-osoite tai hostname
+          TARGET_HOST: 192.168.68.118
+          # Hakemisto kohdekoneella, johon palvelun tiedostot kopioidaan
+          TARGET_PATH: /opt/weather_symbol_service
+        run: |
+          echo "Deploying to ${TARGET_USER}@${TARGET_HOST}:${TARGET_PATH}"
 
+          # Tallenna yksityisavain väliaikaisesti Runner-koneella
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa_deploy
+          chmod 600 ~/.ssh/id_rsa_deploy
+
+          # Lisää kohdekoneen julkinen avain known_hostsiin (hyvä käytäntö turvallisuuden vuoksi)
+          # Tämä estää "Host key verification failed" -virheitä
+          # Voit saada oikean rivin ajamalla 'ssh-keyscan 192.168.68.118' Runner-koneella ja kopioimalla sen.
+          # Jos haluat aloittaa yksinkertaisesti, voit ohittaa StrictHostKeyCheckingin:
+          # -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+
+          # Synkronoi tiedostot Rsyncilla
+          # Huomaa `./dist/`: jos build-vaihe tuottaa tiedostot tähän kansioon.
+          # Muokkaa, jos lähde on suoraan repositorion juuri (esim. `./`)
+          rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no" ./dist/ ${TARGET_USER}@${TARGET_HOST}:${TARGET_PATH}/
+
+          # Vaihda tiedostojen omistaja kohdekoneella
+          # Käytä 'sudo', koska gitea-deploy tarvitsee oikeudet chown-komennolle /opt/-hakemistossa
+          echo "Changing ownership of ${TARGET_PATH} to ${SERVICE_USER}"
+          ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no ${TARGET_USER}@${TARGET_HOST} "sudo chown -R ${SERVICE_USER}:${SERVICE_USER} ${TARGET_PATH}"
+
+          # Käynnistä Systemd-palvelu uudelleen kohdekoneella
+          # 'sudo' tarvitaan, koska 'systemctl restart' vaatii root-oikeudet,
+          # ja olemme antaneet gitea-deploy-käyttäjälle oikeudet tähän komennon suorittamiseen 'sudoers'-tiedostossa.
+          ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no ${TARGET_USER}@${TARGET_HOST} "sudo systemctl restart weather-symbol-microservice.service"
+
+          echo "Deployment complete."
+
+          # Poista yksityinen avain turvallisuussyistä
+          rm ~/.ssh/id_rsa_deploy
 
 
