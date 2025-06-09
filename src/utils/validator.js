@@ -22,12 +22,12 @@ function isValidWeatherCode(weatherCode) {
 /**
  * Validates whether the given angle is a number within the range of 0 to 359 degrees.
  *
- * @param {number} angle - The angle to validate.
- * @returns {boolean} Returns `true` if the angle is valid, otherwise `false`.
+ * @param {any} angle - The angle to validate.
+ * @returns {boolean} Returns `true` if the angle is a valid number, otherwise `false`.
  */
 function isValidAngle(angle) {
-    // Validate if angle is a number between 0 and 359
-    return !isNaN(angle) && angle >= 0 && angle < 360;
+    // Return true only if angle is a number between 0 and 359
+    return typeof angle === 'number' && angle >= 0 && angle < 360;
 }
 
 module.exports = {
