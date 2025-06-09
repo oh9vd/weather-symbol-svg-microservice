@@ -51,10 +51,8 @@ jobs:
           # Muokkaa, jos lähde on suoraan repositorion juuri (esim. `./`)
           rsync -avz --delete -e "ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no" ./dist/ ${TARGET_USER}@${TARGET_HOST}:${TARGET_PATH}/
 
-          # Vaihda tiedostojen omistaja kohdekoneella
-          # Käytä 'sudo', koska gitea-deploy tarvitsee oikeudet chown-komennolle /opt/-hakemistossa
-          echo "Changing ownership of ${TARGET_PATH} to ${SERVICE_USER}"
-          ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no ${TARGET_USER}@${TARGET_HOST} "sudo chown -R ${SERVICE_USER}:${SERVICE_USER} ${TARGET_PATH}"
+          echo "Executing deploy script on target."
+          ssh -i ~/.ssh/id_rsa_deploy -o StrictHostKeyChecking=no ${TARGET_USER}@${TARGET_HOST} "sudo /usr/local/bin/deploy_weather_service.sh"
 
           # Käynnistä Systemd-palvelu uudelleen kohdekoneella
           # 'sudo' tarvitaan, koska 'systemctl restart' vaatii root-oikeudet,
