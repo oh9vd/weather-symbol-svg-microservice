@@ -96,3 +96,4 @@ jobs:
 
           echo "Service health check FAILED: Service did not respond as expected after multiple retries."
           exit 1        
+
