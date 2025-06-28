@@ -15,11 +15,12 @@ jobs:
         with:
           node-version: '22' # Tai mikä tahansa tarvitsemasi Node.js-versio
 
-      - name: Install dependencies
-        run: npm install --verbose
+      - name: Install production dependencies
+        run: npm install --production
 
-      - name: Build project (if needed)
-        run: npm run build
+      - name: Build project (production)
+        run: npm run build --production
+
         # Tai jos kyseessä on vain SVG-tiedostojen tarjoaminen, tämä askel voi olla yksinkertaisempi tai tarpeeton.
 
       - name: Deploy via SSH and Rsync
