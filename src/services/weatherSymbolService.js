@@ -4,6 +4,7 @@ const path = require("path");
 const { optimize } = require("svgo");
 const { extractSvgContentAndDefs } = require("../utils/svgExtractor");
 const { isValidWeatherCode, isValidAngle } = require("../utils/validator");
+const { generateWindArrowSvg } = require("../utils/windArrow"); 
 
 // --- Helper functions for Vaisala code parsing ---
 
@@ -134,61 +135,8 @@ async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg =
     const { viewBox = "0 0 64 64", width = "64", height = "64" } = svgParams;
 
     const symbolName = "wind-arrow";
-    const svgPath = path.join(svgAssetsDir, `${symbolName}.svg`);
-
     try {
-        // Reads the base SVG. Assumes it is a 24x24 SVG
-        // The arrow is assumed to be centered at (12,12) in its own coordinates.
-        const baseWindArrowSvgRaw = await fs.readFile(svgPath, 'utf8');
-        const parsedBaseSvg = extractSvgContentAndDefs(baseWindArrowSvgRaw);
-
-        if (!parsedBaseSvg) {
-            const error = new Error(
-                `Error parsing ${symbolName}.svg: Invalid SVG structure.`
-            );
-            error.statusCode = 500;
-            throw error;
-        }
-
-        // Assumed size and center point of the base SVG
-        const baseSvgWidth = 24;
-        const baseSvgHeight = 24;
-        const baseSvgCenterX = baseSvgWidth / 2; // 12
-        const baseSvgCenterY = baseSvgHeight / 2; // 12
-
-        // Actual width and height of the target SVG in numeric form
-        const targetWidth = parseFloat(width);
-        const targetHeight = parseFloat(height);
-
-        // Calculate scale factor so that the arrow scales correctly and fits in the area.
-        // Use Math.min so that the arrow does not exceed either dimension if the target is not square.
-        const scaleFactor = Math.min(targetWidth / baseSvgWidth, targetHeight / baseSvgHeight);
-
-        // --- Order and calculation of transformations (critical!) ---
-        // Order: Move to center -> Rotate -> Scale -> Move back to position
-        // Here we rotate and scale around the origin (0,0), then move it to its final position.
-        // This is often the simplest way when the object's internal structure is 'centered'.
-
-        // If the points in the arrow's path data are drawn starting from 0,0,
-        // (i.e., the arrow points upwards and its tip is at (0,0)),
-        // Then baseSvgCenterX/Y are the arrow's "anchor point" or rotation point.
-        // Still assuming that (12,12) is the arrow's center in a 24x24 area.
-
-        const finalSvg = `
-            <svg width="${width}" height="${height}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <style type="text/css">${parsedBaseSvg.style}</style>
-                    ${parsedBaseSvg.defs}
-                </defs>
-                <g transform="
-                    translate(${targetWidth / 2} ${targetHeight / 2})         
-                    rotate(${angleDegrees})                                   
-                    scale(${scaleFactor})                                     
-                    translate(${-baseSvgCenterX} ${-baseSvgCenterY})">
-                    ${parsedBaseSvg.mainContent}
-                </g>
-            </svg>
-        `;
+     const finalSvg = generateWindArrowSvg(12,angleDegrees);
 
         if (noOptSvg) return finalSvg;
 
