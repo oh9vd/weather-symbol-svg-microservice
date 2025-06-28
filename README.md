@@ -1,15 +1,15 @@
 # Weather Symbol SVG Microservice
 
-
-This project provides a lightweight Node.js microservice that dynamically generates SVG weather symbols based on Vaisala weather codes and also provides rotatable wind direction arrows. It's designed to be easily integrated into web applications, dashboards (like Grafana), or any system requiring dynamic weather visualizations.
+This project provides a lightweight Node.js microservice that dynamically generates SVG weather symbols based on Vaisala weather codes and also provides wind direction arrows with wind speed display. It's designed to be easily integrated into web applications, dashboards (like Grafana), or any system requiring dynamic weather visualizations.
 
 ## Features
 
 * **Dynamic Vaisala Weather Symbols**: Generate complex weather symbols by combining individual SVG elements based on a 4-digit Vaisala weather code.
-* **Rotatable Wind Arrows**: Request wind direction arrows rotated to any specified degree.
+* **Wind Arrows with Speed**: Generate wind direction arrows that display wind speed inside a stationary circle and a rotating triangle indicating direction.
 * **Modular SVG Elements**: Symbols are built from individual, easy-to-manage SVG files, allowing for high customization and future expansion.
 * **SVG Optimization**: Utilizes `svgo` to optimize all generated SVGs, ensuring efficient delivery and rendering.
 * **Simple API**: Provides straightforward HTTP endpoints for symbol generation.
+* **Theme Support**: Wind arrow SVGs can be rendered for light or dark backgrounds.
 
 ## Getting Started
 
@@ -31,7 +31,9 @@ This project provides a lightweight Node.js microservice that dynamically genera
     # or yarn install
     ```
 3.  **Place SVG assets:**
-    Create an `assets/elements` directory at the root of your project (sibling to `src/`) and place your individual SVG symbol files (e.g., `sun.svg`, `cloud-1.svg`, `rain.svg`, `thunderbolt.svg`, etc.) within it. Also, place `wind-arrow.svg` directly in the `assets/` directory.
+    Create an `assets/elements` directory at the root of your project (sibling to `src/`) and place your individual SVG symbol files (e.g., `sun.svg`, `cloud-1.svg`, `rain.svg`, `thunderbolt.svg`, etc.) within it.
+
+    > **Note:** The wind arrow SVG is now generated dynamically and does **not** require a `wind-arrow.svg` file in the `assets/` directory.
 
     Your `assets` directory structure should look like this:
     ```
@@ -41,12 +43,11 @@ This project provides a lightweight Node.js microservice that dynamically genera
     │   ├── utils/
     │   └── services/
     ├── assets/
-    │   ├── elements/
-    │   │   ├── sun.svg
-    │   │   ├── moon.svg
-    │   │   ├── cloud-1.svg
-    │   │   └── ... (all your weather symbol components)
-    │   └── wind-arrow.svg
+    │   └── elements/
+    │       ├── sun.svg
+    │       ├── moon.svg
+    │       ├── cloud-1.svg
+    │       └── ... (all your weather symbol components)
     ├── build.js
     ├── LICENSE
     ├── nodemon.json
@@ -56,7 +57,7 @@ This project provides a lightweight Node.js microservice that dynamically genera
 
 ### Running the Service
 
-``` bash
+```bash
 node src/server.js
 ```
 
@@ -74,7 +75,7 @@ npm run build
 This command performs the following steps:
 
 1. **Bundles JavaScript**: All source JavaScript files (`src/`) are combined and minified into a single `bundle.js` file, optimized for Node.js.
-2. **Copies Assets**: The entire `assets/` directory (containing your SVG elements and `wind-arrow.svg`) is copied into the `dist/` folder.
+2. **Copies Assets**: The entire `assets/` directory (containing your SVG elements) is copied into the `dist/` folder.
 3. **Creates Zip Archive**: The entire `dist/` folder (including `bundle.js` and the `assets/` directory) is compressed into a single `weather-symbol-microservice.zip` file, also located in the `dist/` directory.
 
 ### Output
@@ -202,7 +203,7 @@ WantedBy=multi-user.target # Ensures the service starts when the system boots
 
     **Note**: The `journalctl -f` command will show you the real-time logs of your service, which is very useful for debugging startup issues.
 
-Now you can access the weather and wind arrow symbols as described in the endpoint descriptions above.
+Now you can access the weather and wind arrow symbols as described in the endpoint descriptions below.
 
 ### Deployment
 
@@ -278,25 +279,27 @@ Generate a weather symbol based on a Vaisala weather code.
     * `400 Bad Request`: If `weather_code` is invalid or unprocessable.
     * `500 Internal Server Error`: If there's a server-side issue generating the SVG.
 
-### 2. Wind Direction Arrows
+### 2. Wind Arrows with Speed
 
-Generate a wind arrow rotated to a specific angle.
+Generate a wind arrow SVG with wind speed inside a stationary circle and a rotating triangle for direction.
 
 * **URL:** `/wind_direction/:angle`
 * **Method:** `GET`
 * **URL Parameters:**
     * `angle`: The rotation angle in degrees (0-359).
-* **Query Parameters (Optional):**
+    * `speed`: the wind speed in m/s
+* **Query Parameters:**
     * `width`: Desired width of the SVG (default: `64`).
     * `height`: Desired height of the SVG (default: `64`).
     * `viewBox`: Desired `viewBox` attribute for the SVG (default: `0 0 64 64`).
+    * `theme`: (Optional) `light`, `dark`, or `auto` (default: `auto`). Adjusts SVG colors for background.
 * **Example Request:**
     ```
-    http://localhost:4000/wind_direction/90?width=100&height=100
+    http://localhost:4000/wind_direction/90,5?speed=12&width=100&height=100&theme=dark
     ```
-* **Success Response:** Returns an `image/svg+xml` with the rotated wind arrow.
+* **Success Response:** Returns an `image/svg+xml` with the wind arrow and speed.
 * **Error Response:**
-    * `400 Bad Request`: If `angle` is invalid.
+    * `400 Bad Request`: If `angle` or `speed` is invalid.
     * `500 Internal Server Error`: If there's a server-side issue generating the SVG.
 
 ### 3. Health Check
@@ -311,19 +314,29 @@ A simple endpoint to check if the service is running.
     ```
 * **Success Response:** Returns something like `2025-06-01T11:32:43.513Z: SVG Server is running!`, where the date and time is retrieved from current time in server.
 
+## Running Tests
+
+To run the test suite:
+
+```bash
+npm test
+```
+
+This will run all Mocha/Chai tests in the `test/` directory.
+
 ## Project Structure
 ```
 your-project/
 ├── src/
 │   ├── server.js               # Main Express application, handles routing and server startup.
 │   ├── utils/                  # Utility functions.
-│   │   ├── svgExtractor.js     # Extracts &lt;style>, &lt;defs>, and main content from SVG strings.
-│   │   └── validator.js        # Contains validation logic for weather codes and angles.
+│   │   ├── svgExtractor.js     # Extracts <style>, <defs>, and main content from SVG strings.
+│   │   ├── validator.js        # Contains validation logic for weather codes and angles.
+│   │   └── windArrow.js        # Generates wind arrow SVGs with speed and direction.
 │   └── services/               # Core application logic.
 │       └── weatherSymbolService.js # Parses Vaisala codes, combines SVG components, and handles wind arrow generation.
 ├── assets/                 # Directory for all SVG assets.
-│   ├── elements/           # Individual SVG components for weather symbols (e.g., cloud-1.svg, sun.svg).
-│   └── wind-arrow.svg      # The base SVG for the wind arrow.           
+│   └── elements/           # Individual SVG components for weather symbols (e.g., cloud-1.svg, sun.svg).
 ├── build.js                # Module for distribution package building.
 ├── LICENSE                 # MIT license. 
 ├── nodemon.json            # Nodemon settings for debugging.
@@ -336,10 +349,11 @@ your-project/
 * **`server.js`**: Sets up the Express server, defines API routes, and acts as the entry point. It delegates complex logic to the `services` layer.
 * **`utils/svgExtractor.js`**: This utility is crucial for dissecting raw SVG files, allowing their `<defs>` and `<style>` blocks to be merged intelligently and their main content transformed.
 * **`utils/validator.js`**: Ensures that incoming `weather_code` and `angle` parameters are in the expected format, preventing malformed requests.
+* **`utils/windArrow.js`**: Dynamically generates wind arrow SVGs with a stationary circle (showing wind speed) and a rotating triangle (showing wind direction), with theme-aware styling.
 * **`services/weatherSymbolService.js`**:
     * **Vaisala Weather Codes**: The `parseVaisalaWeatherCode` function interprets the 4-digit Vaisala code into a list of required SVG component names (e.g., `sun`, `cloud-3`, `snow`). It includes logic to handle day/night, cloudiness, precipitation type, and rate.
     * **SVG Combination**: For Vaisala symbols, it reads multiple individual SVG element files (from `assets/elements/`), extracts their content, styles, and definitions, then dynamically compiles a single output SVG with appropriate `translate` and `scale` transformations for each component.
-    * **Wind Arrow**: For wind arrows, it reads the base `wind-arrow.svg` and applies a `rotate` transformation around its center to achieve the desired direction.
+    * **Wind Arrow**: Wind arrow SVGs are generated dynamically using `utils/windArrow.js` and do not require a static SVG asset.
     * **Optimization**: All final SVGs are passed through `svgo` for optimization before being sent as a response.
 
 ## Customization
