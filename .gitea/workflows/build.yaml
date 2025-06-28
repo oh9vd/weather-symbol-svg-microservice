@@ -16,7 +16,7 @@ jobs:
           node-version: '22' # Tai mikä tahansa tarvitsemasi Node.js-versio
 
       - name: Install all dependencies
-        run: npm install
+        run: npm install --verbose
 
       - name: Build project (production)
         run: npm run build --production
