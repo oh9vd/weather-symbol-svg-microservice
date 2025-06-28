@@ -15,11 +15,17 @@ jobs:
         with:
           node-version: '22' # Tai mikä tahansa tarvitsemasi Node.js-versio
 
+      - name: Install all dependencies
+        run: npm install
+
       - name: Install production dependencies
         run: npm install --production
 
       - name: Build project (production)
         run: npm run build --production
+
+      - name: Remove devDependencies
+        run: npm prune --production
 
         # Tai jos kyseessä on vain SVG-tiedostojen tarjoaminen, tämä askel voi olla yksinkertaisempi tai tarpeeton.
 
