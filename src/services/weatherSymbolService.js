@@ -118,25 +118,22 @@ function parseVaisalaWeatherCode(weatherCode) {
 /**
  * Fetches and generates an SVG for wind direction, rotated to the specified angle.
  * @param {number} angleDegrees - The wind direction in degrees (0-359).
+ * @param {number} windSpeed - The wind speed to display in the SVG.
  * @param {object} svgParams - SVG parameters (viewBox, width, height).
- * @param {string} svgAssetsDir - The path to the SVG assets directory.
  * @param {boolean} noOptSvg - If set to true does not optimize the output svg, defaults to false.
  * @returns {Promise<string>} A promise that resolves to the raw SVG string.
  * @throws {Error} If the angle is invalid or SVG processing fails.
  */
-async function getWindArrowSvg(angleDegrees, svgParams, svgAssetsDir, noOptSvg = false) {
+async function getWindArrowSvg(angleDegrees, windSpeed, svgParams, noOptSvg = false) {
     if (!isValidAngle(angleDegrees)) {
         const error = new Error('Invalid angle parameter for wind direction SVG.');
         error.statusCode = 400;
         throw error;
     }
 
-    // Set default values if they are not provided
-    const { viewBox = "0 0 64 64", width = "64", height = "64" } = svgParams;
-
     const symbolName = "wind-arrow";
     try {
-     const finalSvg = generateWindArrowSvg(12,angleDegrees);
+        const finalSvg = generateWindArrowSvg( angleDegrees, windSpeed, svgParams);
 
         if (noOptSvg) return finalSvg;
 

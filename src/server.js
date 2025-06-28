@@ -26,14 +26,14 @@ app.set("svgElementsDir", ELEMENTS_DIR);
 // -- Routes --
 
 // Route for wind arrow SVGs
-app.get('/wind_direction/:angle', async (req, res) => {
+app.get('/wind_direction/:angle,:speed', async (req, res) => {
     try {
-        const { angle } = req.params;
-        const { viewBox, width, height } = req.query;
+        const { angle, speed } = req.params;
+        const { viewBox, width, height, theme } = req.query;
         const svg = await weatherSymbolService.getWindArrowSvg(
             parseInt(angle, 10),
-            { viewBox, width, height },
-            app.get('svgAssetsDir'), // Pass asset directory to the service
+            parseInt(speed, 10),
+            { viewBox, width, height, theme },
             noOptSvg
         );
         res.setHeader('Content-Type', 'image/svg+xml');

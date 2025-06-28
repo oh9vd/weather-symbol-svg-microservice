@@ -3,12 +3,13 @@
  * and a rotating triangle (showing wind direction).
  * The SVG is styled for good visibility on both dark and light backgrounds.
  *
- * @param {number|string} speed - Wind speed to display inside the circle.
  * @param {number} directionDegrees - Wind direction in degrees (0 = north, 90 = east, etc.).
+ * @param {number|string} speed - Wind speed to display inside the circle.
  * @param {object} [options] - Optional customization (size, theme, etc.).
  * @returns {string} SVG string.
  */
-function generateWindArrowSvg(speed, directionDegrees, options = {}) {
+function generateWindArrowSvg( directionDegrees, speed, options = {}) {
+    const viewBox = options.viewBox || '0 0 64 64';
     const size = options.size || 64;
     const circleRadius = options.circleRadius || 18;
     const triangleHeight = options.triangleHeight || 18;
@@ -37,7 +38,7 @@ function generateWindArrowSvg(speed, directionDegrees, options = {}) {
     ].map(p => p.join(',')).join(' ');
 
     return `
-<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
+<svg width="${size}" height="${size}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style type="text/css">
       .circle { fill: ${circleFill}; stroke: ${circleStroke}; stroke-width: 2; }
@@ -64,7 +65,7 @@ function generateWindArrowSvg(speed, directionDegrees, options = {}) {
   <!-- Wind speed text -->
   <text class="speed-text" x="${center}" y="${center}">${speed}</text>
   <!-- Rotating triangle for wind direction -->
-  <g transform="rotate(${directionDegrees} ${center} ${center})">
+  <g transform="rotate(${directionDegrees + 180} ${center} ${center})">
     <polygon class="triangle" points="${trianglePoints}"/>
   </g>
 </svg>
