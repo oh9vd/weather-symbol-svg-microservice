@@ -18,9 +18,6 @@ jobs:
       - name: Install all dependencies
         run: npm install
 
-      - name: Install production dependencies
-        run: npm install --production
-
       - name: Build project (production)
         run: npm run build --production
 
