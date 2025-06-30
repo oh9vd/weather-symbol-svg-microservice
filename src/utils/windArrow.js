@@ -10,11 +10,12 @@
  */
 function generateWindArrowSvg( directionDegrees, speed, options = {}) {
     const viewBox = options.viewBox || '0 0 64 64';
-    const size = options.size || 64;
+    const width = options.width || 64;
+    const height = options.height || 64;    
     const circleRadius = options.circleRadius || 18;
     const triangleHeight = options.triangleHeight || 18;
     const triangleBase = options.triangleBase || 14;
-    const center = size / 2;
+    const center = Math.min(width / 2, height / 2);
 
     // Theme colors for light/dark backgrounds
     const theme = options.theme || 'auto'; // 'auto', 'light', or 'dark'
@@ -38,7 +39,7 @@ function generateWindArrowSvg( directionDegrees, speed, options = {}) {
     ].map(p => p.join(',')).join(' ');
 
     return `
-<svg width="${size}" height="${size}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
+<svg width="${width}" height="${height}" viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <style type="text/css">
       .circle { fill: ${circleFill}; stroke: ${circleStroke}; stroke-width: 2; }

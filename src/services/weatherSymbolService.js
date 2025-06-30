@@ -3,7 +3,7 @@ const fs = require("fs").promises;
 const path = require("path");
 const { optimize } = require("svgo");
 const { extractSvgContentAndDefs } = require("../utils/svgExtractor");
-const { isValidWeatherCode, isValidAngle } = require("../utils/validator");
+const { isValidWeatherCode, isValidAngle, isValidWindSpeed} = require("../utils/validator");
 const { generateWindArrowSvg } = require("../utils/windArrow"); 
 
 // --- Helper functions for Vaisala code parsing ---
@@ -131,6 +131,12 @@ async function getWindArrowSvg(angleDegrees, windSpeed, svgParams, noOptSvg = fa
         throw error;
     }
 
+    if (!isValidWindSpeed(windSpeed)) {
+        const error = new Error('Invalid wind speed parameter for wind direction SVG.');
+        error.statusCode = 400;
+        throw error;
+    }
+
     const symbolName = "wind-arrow";
     try {
         const finalSvg = generateWindArrowSvg( angleDegrees, windSpeed, svgParams);
@@ -152,7 +158,6 @@ async function getWindArrowSvg(angleDegrees, windSpeed, svgParams, noOptSvg = fa
  * Fetches and combines SVG components for a given Vaisala weather code.
  * @param {string} weatherCode - The Vaisala weather code.
  * @param {object} svgParams - SVG parameters (viewBox, width, height).
- * @param {string} svgElementsDir - The path to the directory containing individual SVG element files.
  * @param {boolean} noOptSvg - If set to true does not optimize the output svg, defaults to false.*
  * @returns {Promise<string>} A promise that resolves to the optimized combined SVG string.
  * @throws {Error} If the weather code is invalid or SVG combination fails.
@@ -160,7 +165,6 @@ async function getWindArrowSvg(angleDegrees, windSpeed, svgParams, noOptSvg = fa
 async function getVaisalaSymbolSvg(
     weatherCode,
     svgParams,
-    svgElementsDir,
     noOptSvg = false
 ) {
     const { viewBox = "0 0 64 64", width = "64", height = "64" } = svgParams;
@@ -253,5 +257,5 @@ async function getVaisalaSymbolSvg(
 
 module.exports = {
     getWindArrowSvg,
-    getVaisalaSymbolSvg,
+    getVaisalaSymbolSvg
 };

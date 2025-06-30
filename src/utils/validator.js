@@ -22,7 +22,7 @@ function isValidWeatherCode(weatherCode) {
 /**
  * Validates whether the given angle is a number within the range of 0 to 359 degrees.
  *
- * @param {any} angle - The angle to validate.
+ * @param {number} angle - The angle to validate.
  * @returns {boolean} Returns `true` if the angle is a valid number, otherwise `false`.
  */
 function isValidAngle(angle) {
@@ -30,7 +30,19 @@ function isValidAngle(angle) {
     return typeof angle === 'number' && angle >= 0 && angle < 360;
 }
 
+/**
+ * Validates whether the given wind speed is a number within the range of 0 to 49 m/s.
+ *
+ * @param {number} speed - The wind speed to validate.
+ * @returns {boolean} Returns `true` if the angle is a valid number, otherwise `false`.
+ */
+function isValidWindSpeed(speed) {
+    // Return true only if speed is a number between 0 and 49 m/s
+    return typeof speed === 'number' && speed >= 0 && speed < 50;
+}
+
 module.exports = {
     isValidWeatherCode,
     isValidAngle,
+    isValidWindSpeed,
 };
