@@ -157,6 +157,7 @@ async function getWindArrowSvg(angleDegrees, windSpeed, svgParams, noOptSvg = fa
 /**
  * Fetches and combines SVG components for a given Vaisala weather code.
  * @param {string} weatherCode - The Vaisala weather code.
+ * @param {string} svgElementsDir - Directory containing SVG elements.
  * @param {object} svgParams - SVG parameters (viewBox, width, height).
  * @param {boolean} noOptSvg - If set to true does not optimize the output svg, defaults to false.*
  * @returns {Promise<string>} A promise that resolves to the optimized combined SVG string.
@@ -164,6 +165,7 @@ async function getWindArrowSvg(angleDegrees, windSpeed, svgParams, noOptSvg = fa
  */
 async function getVaisalaSymbolSvg(
     weatherCode,
+    svgElementsDir,
     svgParams,
     noOptSvg = false
 ) {

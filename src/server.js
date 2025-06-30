@@ -20,7 +20,6 @@ const ASSETS_DIR = path.join(ASSETS_ROOT, "assets");
 const ELEMENTS_DIR = path.join(ASSETS_DIR, "elements");
 
 // Define asset directories for services
-app.set("svgAssetsDir", ASSETS_DIR);
 app.set("svgElementsDir", ELEMENTS_DIR);
 
 // -- Routes --
@@ -53,8 +52,8 @@ app.get("/weather_symbol/:weather_code", async (req, res) => {
 
     const svg = await weatherSymbolService.getVaisalaSymbolSvg(
       weather_code,
+      app.get("svgElementsDir"), // Pass elements directory to the service      
       { viewBox, width, height },
-      app.get("svgElementsDir"), // Pass elements directory to the service
       noOptSvg
     );
     res.setHeader("Content-Type", "image/svg+xml");
