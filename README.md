@@ -207,7 +207,39 @@ Now you can access the weather and wind arrow symbols as described in the endpoi
 
 ### Deployment
 
-To deploy the service:
+#### Docker Deployment
+
+The service can be easily containerized using the included Dockerfile for consistent deployment across environments:
+
+1. **Build the Docker image:**
+
+   ```bash
+   docker build -t weather-symbol-svg-microservice .
+   ```
+
+2. **Run the container:**
+
+   ```bash
+   docker run -p 4000:4000 weather-symbol-svg-microservice
+   ```
+   
+   Or with a custom port:
+
+   ```bash
+   docker run -p 8080:4000 -e PORT=4000 weather-symbol-svg-microservice
+   ```
+
+3. **Run in detached mode:**
+
+   ```bash
+   docker run -d -p 4000:4000 --name weather-symbols weather-symbol-svg-microservice
+   ```
+
+The Dockerfile uses Node.js 22 LTS with Alpine Linux for a secure, lightweight container that includes all necessary dependencies and automatically runs the build process.
+
+#### Manual Deployment
+
+To deploy the service manually:
 
 1. Transfer the `weather-symbol-microservice.zip` file to your target server.
 2. Unzip the package.
